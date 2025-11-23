@@ -95,9 +95,6 @@ dist
 .temp
 .cache
 
-# Sveltekit cache directory
-.svelte-kit/
-
 # vitepress build output
 **/.vitepress/dist
 
@@ -137,5 +134,16 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Sensitive files and directories
 temp/
+*.token
+*.key
+*.secret
+tokens.txt
+test-api-token.txt
+**/tokens.txt
+**/test-api-token.txt
+
+# CLI binary (duplicate of cli.js)
 cli

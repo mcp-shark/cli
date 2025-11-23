@@ -22,7 +22,10 @@
     "format": "prettier --write \"**/*.{js,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{js,json,css,md}\"",
     "fix": "npm run lint:fix && npm run format",
-    "postinstall": "chmod +x cli.js cli 2>/dev/null || true"
+    "postinstall": "chmod +x cli.js cli 2>/dev/null || true",
+    "prepublishOnly": "npm run lint && npm run format:check",
+    "publish:public": "npm publish --access public",
+    "publish:dry-run": "npm publish --dry-run"
   },
   "lint-staged": {
     "*.js": [
@@ -44,6 +47,25 @@
   ],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcp-shark-org/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mcp-shark-org/cli/issues"
+  },
+  "homepage": "https://github.com/mcp-shark-org/cli#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "cli.js",
+    "index.js",
+    "index.d.ts",
+    "lib/",
+    "package.json",
+    "README.md"
+  ],
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",

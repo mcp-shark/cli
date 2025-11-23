@@ -64,6 +64,45 @@ A command-line interface tool for performing security scans on Model Context Pro
 
 ## Installation
 
+### npm (Recommended)
+
+```bash
+# Global installation
+npm install -g @mcp-shark/cli
+
+# Use it
+mcp-shark-cli scan -c config.json --token=your_token
+```
+
+### GitHub (No npm required)
+
+You can also install directly from GitHub:
+
+#### Quick Install (One-liner)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mcp-shark-org/cli/main/install.sh | bash
+```
+
+This installs the CLI to `~/.local/bin/mcp-shark-cli`. Add to your PATH:
+```bash
+export PATH="$PATH:$HOME/.local/bin"
+```
+
+#### Direct Execution (No Installation)
+
+```bash
+# One-liner execution
+curl -fsSL https://raw.githubusercontent.com/mcp-shark-org/cli/main/mcp-shark-cli | bash -s -- scan -c config.json --token=your_token
+
+# Or download the wrapper script
+curl -fsSL https://raw.githubusercontent.com/mcp-shark-org/cli/main/mcp-shark-cli -o mcp-shark-cli
+chmod +x mcp-shark-cli
+./mcp-shark-cli scan -c config.json --token=your_token
+```
+
+For more installation options, see [INSTALL.md](./INSTALL.md).
+
 ### Local Development
 
 ```bash
