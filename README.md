@@ -74,31 +74,24 @@ npm install -g @mcp-shark/cli
 mcp-shark-cli scan -c config.json --token=your_token
 ```
 
-### GitHub (No npm required)
-
-You can also install directly from GitHub:
-
-#### Quick Install (One-liner)
+### Local Installation (Project-specific)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mcp-shark-org/cli/main/install.sh | bash
+npm install @mcp-shark/cli
 ```
 
-This installs the CLI to `~/.local/bin/mcp-shark-cli`. Add to your PATH:
+Then use with npx:
+
 ```bash
-export PATH="$PATH:$HOME/.local/bin"
+npx @mcp-shark/cli scan -c config.json --token=your_token
 ```
 
-#### Direct Execution (No Installation)
+### Using npx (No Installation)
+
+If you have npm but don't want to install globally:
 
 ```bash
-# One-liner execution
-curl -fsSL https://raw.githubusercontent.com/mcp-shark-org/cli/main/mcp-shark-cli | bash -s -- scan -c config.json --token=your_token
-
-# Or download the wrapper script
-curl -fsSL https://raw.githubusercontent.com/mcp-shark-org/cli/main/mcp-shark-cli -o mcp-shark-cli
-chmod +x mcp-shark-cli
-./mcp-shark-cli scan -c config.json --token=your_token
+npx -y @mcp-shark/cli scan -c config.json --token=your_token
 ```
 
 For more installation options, see [INSTALL.md](./INSTALL.md).
