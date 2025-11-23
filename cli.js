@@ -75,8 +75,10 @@ program
       failOnMedium,
       failOnLow,
     }) => {
-      // Display testing phase banner immediately
-      displayTestingBanner();
+      // Display testing phase banner immediately (skip in JSON mode)
+      if (!json) {
+        displayTestingBanner();
+      }
 
       const tokenValue = getToken(token);
 
@@ -87,16 +89,28 @@ program
 
       if (!json) {
         consola.info(`Running scan with config: ${config}`);
-      }
-      consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
-
-      if (verbose) {
-        consola.debug("Verbose mode enabled");
+        consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
+        if (verbose) {
+          consola.debug("Verbose mode enabled");
+        }
       }
 
       const apiClient = createApiClient(tokenValue);
       if (isError(apiClient)) {
-        consola.error("Error creating API client:", apiClient.error);
+        if (json) {
+          console.error(
+            JSON.stringify(
+              {
+                error: "Failed to create API client",
+                details: apiClient.error,
+              },
+              null,
+              2,
+            ),
+          );
+        } else {
+          consola.error("Error creating API client:", apiClient.error);
+        }
         process.exit(1);
       }
 
@@ -106,10 +120,25 @@ program
       }
       const runResult = await runAllServers(consola, config);
       if (isError(runResult)) {
-        consola.error("Error running MCP servers:", runResult.error);
+        if (json) {
+          console.error(
+            JSON.stringify(
+              { error: "Failed to run MCP servers", details: runResult.error },
+              null,
+              2,
+            ),
+          );
+        } else {
+          consola.error("Error running MCP servers:", runResult.error);
+        }
         process.exit(1);
       }
-      consola.debug("Fetched MCP results:", JSON.stringify(runResult, null, 2));
+      if (!json) {
+        consola.debug(
+          "Fetched MCP results:",
+          JSON.stringify(runResult, null, 2),
+        );
+      }
 
       // Perform the scan
       if (!json) {
@@ -117,10 +146,20 @@ program
       }
       const scanResult = await scheduleScan(apiClient, runResult);
       if (isError(scanResult)) {
-        consola.error(
-          "Error performing scan:",
-          JSON.stringify(scanResult, null, 2),
-        );
+        if (json) {
+          console.error(
+            JSON.stringify(
+              { error: "Failed to perform scan", details: scanResult },
+              null,
+              2,
+            ),
+          );
+        } else {
+          consola.error(
+            "Error performing scan:",
+            JSON.stringify(scanResult, null, 2),
+          );
+        }
         process.exit(1);
       }
 
@@ -175,8 +214,10 @@ program
       failOnMedium,
       failOnLow,
     }) => {
-      // Display testing phase banner immediately
-      displayTestingBanner();
+      // Display testing phase banner immediately (skip in JSON mode)
+      if (!json) {
+        displayTestingBanner();
+      }
 
       const tokenValue = getToken(token);
 
@@ -185,26 +226,52 @@ program
         consola.level = 4; // Verbose mode
       }
 
-      consola.info(`Checking scan: ${scanId}`);
-      consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
-
-      if (verbose) {
-        consola.debug("Verbose mode enabled");
+      if (!json) {
+        consola.info(`Checking scan: ${scanId}`);
+        consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
+        if (verbose) {
+          consola.debug("Verbose mode enabled");
+        }
       }
 
       const apiClient = createApiClient(tokenValue);
       if (isError(apiClient)) {
-        consola.error("Error creating API client:", apiClient.error);
+        if (json) {
+          console.error(
+            JSON.stringify(
+              {
+                error: "Failed to create API client",
+                details: apiClient.error,
+              },
+              null,
+              2,
+            ),
+          );
+        } else {
+          consola.error("Error creating API client:", apiClient.error);
+        }
         process.exit(1);
       }
 
-      consola.debug(`Getting scan: ${scanId}`);
+      if (!json) {
+        consola.debug(`Getting scan: ${scanId}`);
+      }
       const checkedScanResult = await checkScan(apiClient, scanId);
       if (isError(checkedScanResult)) {
-        consola.error(
-          "Error checking scan:",
-          JSON.stringify(checkedScanResult, null, 2),
-        );
+        if (json) {
+          console.error(
+            JSON.stringify(
+              { error: "Failed to check scan", details: checkedScanResult },
+              null,
+              2,
+            ),
+          );
+        } else {
+          consola.error(
+            "Error checking scan:",
+            JSON.stringify(checkedScanResult, null, 2),
+          );
+        }
         process.exit(1);
       }
 
