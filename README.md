@@ -1,17 +1,66 @@
-# Security Scanning CLI Tool
+# Smart Scan CLI Tool
 
-A command-line interface tool for security scanning that uses Model Context Protocol (MCP) servers to discover capabilities and submit scan results to a security scanning API.
+A command-line interface tool for performing security scans on Model Context Protocol (MCP) servers. The CLI automatically discovers MCP server capabilities (tools, resources, and prompts) and submits them to the Smart Scan API for security analysis.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+  - [Local Development](#local-development)
+  - [Using the CLI](#using-the-cli)
+- [Getting Your API Token](#getting-your-api-token)
+- [Usage](#usage)
+  - [Scan Command](#scan-command)
+  - [Check Command](#check-command)
+- [Output Formats](#output-formats)
+  - [Table Format (Default)](#table-format-default)
+  - [JSON Format](#json-format)
+- [CI/CD Integration](#cicd-integration)
+  - [Exit Codes](#exit-codes)
+  - [Default Behavior](#default-behavior)
+  - [Customizing Failure Conditions](#customizing-failure-conditions)
+  - [GitHub Actions Example](#github-actions-example)
+  - [Using with jq](#using-with-jq)
+- [Configuration File Format](#configuration-file-format)
+  - [Transport Types](#transport-types)
+  - [Configuration Merging](#configuration-merging)
+- [API Integration](#api-integration)
+  - [API Endpoints](#api-endpoints)
+  - [Authentication](#authentication)
+  - [Rate Limits](#rate-limits)
+  - [Response Format](#response-format)
+- [Examples](#examples)
+  - [Complete Workflow Example](#complete-workflow-example)
+- [Project Structure](#project-structure)
+- [Development](#development)
+  - [Scripts](#scripts)
+  - [Code Quality](#code-quality)
+  - [Commit Messages](#commit-messages)
+- [Dependencies](#dependencies)
+  - [Runtime Dependencies](#runtime-dependencies)
+  - [Development Dependencies](#development-dependencies)
+- [Error Handling](#error-handling)
+- [Testing Phase Notice](#testing-phase-notice)
+- [Contributing](#contributing)
+  - [Reporting Bugs](#reporting-bugs)
+  - [Feature Requests](#feature-requests)
+  - [Pull Requests](#pull-requests)
+  - [Code Style](#code-style)
+  - [Development Setup](#development-setup)
+- [License](#license)
+- [Support](#support)
 
 ## Features
 
-- 🔌 **Multiple Transport Support**: Connect to MCP servers via stdio, HTTP/SSE, or WebSocket
-- ⚙️ **MCP Config Parsing**: Automatic parsing and normalization of MCP configuration files
-- 🛠️ **Capability Discovery**: Automatically discovers tools, resources, and prompts from MCP servers
-- 📡 **API Integration**: Submits scan results to a security scanning API
-- 🔍 **Verbose Logging**: Detailed debug output with `consola` logger
-- ✅ **Error Handling**: Comprehensive error handling with custom error types
-- 🧪 **Dry-Run Mode**: Test configurations without making changes
-- 🔎 **Scan Status Checking**: Check the status of scheduled scans by ID
+- **Multiple Transport Support**: Connect to MCP servers via stdio, HTTP/SSE, or WebSocket
+- **MCP Config Parsing**: Automatic parsing and normalization of MCP configuration files
+- **Capability Discovery**: Automatically discovers tools, resources, and prompts from MCP servers
+- **API Integration**: Submits scan results to the Smart Scan security analysis API
+- **Tabular & JSON Output**: Human-readable table format or JSON for CI/CD pipelines
+- **Verbose Logging**: Detailed debug output with `consola` logger
+- **Error Handling**: Comprehensive error handling with custom error types
+- **Exit Codes**: Proper exit codes for CI/CD integration (fail on high/medium/low risk)
+- **Scan Status Checking**: Check the status and results of previously performed scans
 
 ## Installation
 
@@ -26,44 +75,67 @@ cd cli
 npm install
 ```
 
-### Global Installation (via npx)
+### Using the CLI
 
-Once published, you can use the CLI globally:
+You can run the CLI in several ways:
 
 ```bash
-npx @your-org/cli schedule --config=/path/to/config.json
+# Direct execution (after making executable)
+./cli scan -c temp/mcps.json --token=your-token
+
+# Using npx (from the project directory)
+npx . scan -c temp/mcps.json --token=your-token
+
+# Using node directly
+node cli.js scan -c temp/mcps.json --token=your-token
 ```
+
+## Getting Your API Token
+
+1. Sign in to the [Smart Scan web application](https://smart.mcpshark.sh)
+2. Navigate to the `/tokens` page
+3. Create a new token (or use your existing token)
+4. Copy the token (it starts with `sk_`)
+
+**Important**: Save your token securely - it won't be shown again after creation!
 
 ## Usage
 
-### Schedule Command
+### Scan Command
 
-Run MCP servers to discover their capabilities (tools, resources, and prompts) and submit the results as a scan to the security scanning API:
+Perform a security scan on MCP servers. This command will:
+1. Connect to each configured MCP server
+2. Discover their capabilities (tools, resources, prompts)
+3. Submit the data to the Smart Scan API
+4. Display the results in a formatted table or JSON
 
 ```bash
 # Basic usage
-node cli.js schedule --config=temp/mcps.json
-
-# With verbose output
-node cli.js schedule --config=temp/mcps.json --verbose
-
-# With token authentication
-node cli.js schedule --config=temp/mcps.json --token=your-token
+./cli scan -c temp/mcps.json --token=your-token
 
 # Using environment variable for token
-APP_TOKEN=your-token node cli.js schedule --config=temp/mcps.json
+export APP_TOKEN=your-token
+./cli scan -c temp/mcps.json
 
+# With verbose output
+./cli scan -c temp/mcps.json --token=your-token --verbose
 
-# Dry-run mode (no actual connections or API calls)
-node cli.js schedule --config=temp/mcps.json --dry-run
+# JSON output (for CI/CD pipelines)
+./cli scan -c temp/mcps.json --token=your-token --json
+
+# Fail on medium risk as well (default: only fails on high/critical)
+./cli scan -c temp/mcps.json --token=your-token --fail-on-medium
 ```
 
 **Options:**
 
 - `-c, --config <path>` (required): Path to MCP configuration file
 - `--token <token>`: Authentication token for API (or set `APP_TOKEN` environment variable)
-- `-d, --dry-run`: Run in dry-run mode (no changes will be made)
 - `--verbose`: Enable verbose output
+- `--json`: Output results as JSON (for piping to jq or other tools)
+- `--fail-on-high`: Exit with error code if risk level is high or critical (default: enabled)
+- `--fail-on-medium`: Exit with error code if risk level is medium (default: disabled)
+- `--fail-on-low`: Exit with error code if risk level is low (default: disabled)
 
 **Environment Variables:**
 
@@ -71,41 +143,171 @@ node cli.js schedule --config=temp/mcps.json --dry-run
 
 The CLI connects to `https://smart.mcpshark.sh` automatically.
 
-**What it does:**
-
-1. Parses the MCP configuration file
-2. Connects to each configured MCP server
-3. Discovers tools, resources, and prompts from each server
-4. Submits the collected data as a scan to the security scanning API
-5. Returns a scan ID for tracking the scan status
-
 ### Check Command
 
-Check the status and details of a previously scheduled scan:
+Check the status and results of a previously performed scan:
 
 ```bash
 # Basic usage
-node cli.js check --scan-id=scan123 --token=your-token
+./cli check --scan-id=scan123 --token=your-token
 
 # With verbose output
-node cli.js check --scan-id=scan123 --token=your-token --verbose
+./cli check --scan-id=scan123 --token=your-token --verbose
+
+# JSON output
+./cli check --scan-id=scan123 --token=your-token --json
 
 # Using environment variable for token
-APP_TOKEN=your-token node cli.js check --scan-id=scan123
-
+export APP_TOKEN=your-token
+./cli check --scan-id=scan123
 ```
 
 **Options:**
 
-- `-j, --scan-id <scanId>` (required): Scan ID returned from the schedule command
+- `-j, --scan-id <scanId>` (required): Scan ID returned from the scan command
 - `--token <token>`: Authentication token for API (or set `APP_TOKEN` environment variable)
 - `--verbose`: Enable verbose output
+- `--json`: Output results as JSON (for piping to jq or other tools)
+- `--fail-on-high`: Exit with error code if risk level is high or critical (default: enabled)
+- `--fail-on-medium`: Exit with error code if risk level is medium (default: disabled)
+- `--fail-on-low`: Exit with error code if risk level is low (default: disabled)
 
-**Environment Variables:**
+## Output Formats
 
-- `APP_TOKEN`: Authentication token for the API (required if not provided via `--token`)
+### Table Format (Default)
 
-The CLI connects to `https://smart.mcpshark.sh` automatically.
+The default output shows scan results in a formatted table:
+
+```
+─────────────────────────────────────────────────────────────
+│ Scan ID        │ abc-123-def-456                           │
+│ Created At     │ 2024-01-15T10:30:00.000Z                  │
+│ Status         │ SUCCESS                                   │
+│ Risk Level     │ HIGH                                      │
+│ Rate Limit     │ 2/3                                       │
+│ Overall Reason │ Multiple high-risk tools detected...      │
+│ Tool Findings  │ 5                                         │
+│ Resource Findings │ 2                                     │
+│ Prompt Findings │ 1                                        │
+─────────────────────────────────────────────────────────────
+```
+
+### JSON Format
+
+Use `--json` flag for machine-readable output:
+
+```bash
+./cli scan -c temp/mcps.json --token=your-token --json
+```
+
+Output:
+
+```json
+{
+  "id": "abc-123-def-456",
+  "created_at": "2024-01-15T10:30:00.000Z",
+  "status": "success",
+  "overall_risk_level": "high",
+  "is_error": false,
+  "error_message": null,
+  "error_type": null,
+  "http_status_code": 200,
+  "rate_limit": {
+    "limit": 3,
+    "remaining": 2
+  },
+  "analysis_result": {
+    "overall_risk_level": "high",
+    "overall_reason": "Multiple high-risk tools detected...",
+    "tool_findings": [...],
+    "resource_findings": [...],
+    "prompt_findings": [...]
+  }
+}
+```
+
+## CI/CD Integration
+
+The CLI is designed for CI/CD pipelines with proper exit codes:
+
+### Exit Codes
+
+- `0`: Success (or risk level doesn't trigger failure)
+- `1`: Error occurred or risk level triggers failure
+
+### Default Behavior
+
+By default, the CLI exits with code `1` if:
+- The scan itself failed (API error, network error, etc.)
+- The risk level is `high` or `critical`
+
+### Customizing Failure Conditions
+
+```bash
+# Fail on medium risk as well
+./cli scan -c temp/mcps.json --token=your-token --fail-on-medium
+
+# Fail on low risk too
+./cli scan -c temp/mcps.json --token=your-token --fail-on-low
+
+# Don't fail on high risk (not recommended)
+./cli scan -c temp/mcps.json --token=your-token --no-fail-on-high
+```
+
+### GitHub Actions Example
+
+```yaml
+name: Security Scan
+
+on: [push, pull_request]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: |
+          cd cli
+          npm install
+      
+      - name: Run security scan
+        env:
+          APP_TOKEN: ${{ secrets.SMART_SCAN_TOKEN }}
+        run: |
+          cd cli
+          ./cli scan -c temp/mcps.json --json > scan-result.json
+      
+      - name: Check risk level
+        run: |
+          RISK_LEVEL=$(cat scan-result.json | jq -r '.overall_risk_level')
+          if [ "$RISK_LEVEL" = "high" ] || [ "$RISK_LEVEL" = "critical" ]; then
+            echo "High risk detected: $RISK_LEVEL"
+            exit 1
+          fi
+```
+
+### Using with jq
+
+```bash
+# Get risk level
+./cli scan -c temp/mcps.json --token=your-token --json | jq -r '.overall_risk_level'
+
+# Get scan ID
+./cli scan -c temp/mcps.json --token=your-token --json | jq -r '.id'
+
+# Check if scan was successful
+./cli scan -c temp/mcps.json --token=your-token --json | jq -r '.status'
+
+# Get rate limit info
+./cli scan -c temp/mcps.json --token=your-token --json | jq '.rate_limit'
+```
 
 ## Configuration File Format
 
@@ -177,12 +379,12 @@ The CLI expects an MCP configuration file in JSON format. The file can contain `
 
 ## API Integration
 
-The CLI integrates with a security scanning API to submit scan results. The API expects scan data containing information about MCP servers and their discovered capabilities.
+The CLI integrates with the Smart Scan API at `https://smart.mcpshark.sh`.
 
 ### API Endpoints
 
-- `POST /v1/scans`: Create a new scan with MCP server discovery results
-- `GET /v1/scans/:scanId`: Retrieve scan status and details by scan ID
+- `POST /api/scans`: Create a new scan (perform security scan)
+- `GET /api/scans/{id}`: Retrieve scan status and details by scan ID
 
 ### Authentication
 
@@ -191,35 +393,71 @@ All API requests require authentication using a Bearer token:
 - Provide the token via `--token` command-line option, or
 - Set the `APP_TOKEN` environment variable
 
-### API Base URL
+### Rate Limits
 
-The CLI automatically connects to `https://smart.mcpshark.sh`. No configuration needed.
+- Default rate limit: **3 scans per day per token**
+- Rate limit is configurable per token in the database
+- Rate limit resets at midnight UTC
+- Rate limit information is included in successful responses
 
-Example:
+### Response Format
 
-```bash
-export APP_TOKEN=your-token-here
-node cli.js schedule --config=mcps.json
+#### Success Response (200)
+
+```json
+{
+  "success": true,
+  "data": {
+    "overall_risk_level": "high",
+    "overall_reason": "Multiple high-risk tools detected...",
+    "tool_findings": [...],
+    "resource_findings": [...],
+    "prompt_findings": [...],
+    "notable_patterns": [...],
+    "recommendations": [...]
+  },
+  "scan_id": "uuid-here",
+  "rate_limit": {
+    "limit": 3,
+    "remaining": 2
+  }
+}
 ```
 
-### Scan Data Format
+#### Error Responses
 
-When scheduling a scan, the CLI collects the following information from each MCP server:
+**Rate Limit Exceeded (429):**
 
-- Server name
-- Available tools
-- Available resources
-- Available prompts
+```json
+{
+  "error": "Rate limit exceeded",
+  "message": "You have reached your daily limit of 3 scans. Please try again tomorrow.",
+  "limit": 3,
+  "remaining": 0
+}
+```
 
-This data is formatted and sent to the API as an array of server results.
+**Invalid Token (401):**
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+**Bad Request (400):**
+
+```json
+{
+  "error": "Invalid request body. Expected JSON with MCP server data."
+}
+```
 
 ## Examples
 
 ### Complete Workflow Example
 
-**Step 1: Schedule a scan**
-
-Create a configuration file (`mcps.json`):
+**Step 1: Create a configuration file (`mcps.json`):**
 
 ```json
 {
@@ -232,31 +470,24 @@ Create a configuration file (`mcps.json`):
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
       "headers": {
-        "X-MCP-Readonly": "true"
+        "Authorization": "Bearer your-github-token"
       }
     }
   }
 }
 ```
 
-Run the schedule command:
+**Step 2: Run a scan:**
 
 ```bash
-APP_TOKEN=your-api-token node cli.js schedule --config=mcps.json --verbose
+export APP_TOKEN=sk_your_token_here
+./cli scan -c mcps.json --verbose
 ```
 
-Output:
-
-```
-✓ Schedule command executed Scan ID: scan-abc123
-```
-
-**Step 2: Check scan status**
-
-Use the scan ID from the previous step:
+**Step 3: Check scan results (if needed):**
 
 ```bash
-APP_TOKEN=your-api-token node cli.js check --scan-id=scan-abc123 --verbose
+./cli check --scan-id=scan-abc123
 ```
 
 ### Example: stdio Transport
@@ -281,7 +512,7 @@ APP_TOKEN=your-api-token node cli.js check --scan-id=scan-abc123 --verbose
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
       "headers": {
-        "X-MCP-Readonly": "true"
+        "Authorization": "Bearer your-token"
       }
     }
   }
@@ -306,17 +537,20 @@ APP_TOKEN=your-api-token node cli.js check --scan-id=scan-abc123 --verbose
 ```
 cli/
 ├── cli.js              # Main CLI entry point
+├── cli                 # Symlink to cli.js for ./cli execution
 ├── lib/
-│   ├── api.js          # API client for security scanning service
+│   ├── api.js          # API client for Smart Scan service
+│   ├── banner.js       # Testing phase banner display
 │   ├── check.js        # Scan status checking logic
 │   ├── client.js       # MCP client creation and management
 │   ├── config.js       # Configuration parsing and normalization
 │   ├── error.js        # Error handling utilities
+│   ├── formatter.js    # Output formatting (table/JSON)
 │   ├── request.js      # MCP request handlers
 │   ├── run.js          # MCP server execution logic
-│   ├── schedule.js     # Scan scheduling logic
+│   ├── schedule.js     # Scan submission logic
 │   └── transport.js    # Transport factory
-├── temp/               # Example configurations
+├── temp/               # Example configurations and test scripts
 └── package.json
 ```
 
@@ -336,6 +570,9 @@ npm run format
 
 # Check formatting
 npm run format:check
+
+# Run both lint:fix and format
+npm run fix
 ```
 
 ### Code Quality
@@ -366,6 +603,7 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 
 - `@modelcontextprotocol/sdk`: MCP SDK for client/server communication
 - `axios`: HTTP client for API requests
+- `cli-boxes`: Terminal box drawing for banners
 - `commander`: CLI argument parsing
 - `consola`: Beautiful console logging
 
@@ -383,20 +621,96 @@ The CLI uses a custom error handling system:
 
 - `MCPError`: Base error class for all MCP-related errors
 - `ConfigError`: Configuration parsing errors
-- `TransPortError`: Transport creation errors
+- `TransportError`: Transport creation errors
 - `RunError`: Server execution errors
 - `ApiError`: API client and request errors
 
 Errors are logged using `consola` with appropriate severity levels. API errors include error codes and messages from the API response.
 
+## Testing Phase Notice
+
+**This tool is currently in testing phase**. During this period:
+- Rate limit is set to **3 scans per day** per account
+- Features may change
+- We appreciate your patience and understanding
+
+The banner will be displayed when running scan commands to remind users of this limitation.
+
+## Contributing
+
+We welcome contributions! Here's how you can help:
+
+### Reporting Bugs
+
+If you find a bug, please open an issue on GitHub with:
+
+1. **Clear description** of the bug
+2. **Steps to reproduce** the issue
+3. **Expected behavior** vs **actual behavior**
+4. **Environment details**:
+   - Node.js version
+   - Operating system
+   - CLI version
+5. **Error messages** or logs (if applicable)
+6. **Minimal example** that reproduces the issue (if possible)
+
+### Feature Requests
+
+For feature requests:
+
+1. Open an issue describing the feature
+2. Explain the use case and why it would be valuable
+3. Discuss implementation approach if you have ideas
+
+### Pull Requests
+
+1. **Fork the repository**
+2. **Create a feature branch** from `main`:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Make your changes** following the code style guidelines
+4. **Test your changes** thoroughly
+5. **Ensure all checks pass**:
+   ```bash
+   npm run lint:fix
+   npm run format
+   ```
+6. **Commit your changes** using conventional commits:
+   ```bash
+   git commit -m "feat: add new feature"
+   ```
+7. **Push to your fork**:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+8. **Open a Pull Request** with:
+   - Clear description of changes
+   - Reference to related issues (if any)
+   - Screenshots or examples (if applicable)
+
+### Code Style
+
+- Follow the existing code style
+- Run `npm run lint:fix` and `npm run format` before committing
+- Write clear, self-documenting code
+- Add comments for complex logic
+- Keep functions focused and small
+
+### Development Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Make changes in your feature branch
+4. Test locally with: `./cli scan -c temp/mcps.json --token=your-token`
+5. Run linting and formatting before committing
+
 ## License
 
 ISC
 
-## Contributing
+## Support
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Ensure all tests pass and linting is clean
-5. Submit a pull request with a clear description
+- **Documentation**: See [Smart Scan API Usage Guide](../smart-scan-web-app/docs/API-USAGE.md)
+- **Issues**: Report bugs or request features on GitHub
+- **Web Application**: [https://smart.mcpshark.sh](https://smart.mcpshark.sh)
