@@ -12,7 +12,7 @@ import { consola } from "consola";
 import { runAllServers } from "./lib/run.js";
 import { isError } from "./lib/error.js";
 import { checkScan } from "./lib/check.js";
-import { scheduleScan } from "./lib/schedule.js";
+import { scheduleScans } from "./lib/schedule.js";
 import { createApiClient } from "./lib/api.js";
 import { displayTestingBanner } from "./lib/banner.js";
 import {
@@ -140,47 +140,60 @@ program
         );
       }
 
-      // Perform the scan
-      if (!json) {
-        consola.info("Submitting scan to security analysis API...");
-      }
-      const scanResult = await scheduleScan(apiClient, runResult);
-      if (isError(scanResult)) {
+      // Perform scans (one per server)
+      const scanResults = await scheduleScans(
+        apiClient,
+        runResult,
+        consola,
+        json,
+      );
+
+      // Check if all scans failed
+      const allFailed = scanResults.every(
+        (result) => isError(result) || result.is_error,
+      );
+      if (allFailed && scanResults.length > 0) {
         if (json) {
           console.error(
             JSON.stringify(
-              { error: "Failed to perform scan", details: scanResult },
+              { error: "All scans failed", details: scanResults },
               null,
               2,
             ),
           );
         } else {
-          consola.error(
-            "Error performing scan:",
-            JSON.stringify(scanResult, null, 2),
-          );
+          consola.error("All scans failed. See details below.");
         }
         process.exit(1);
       }
 
       // Format output
       if (json) {
-        console.log(formatScanJSON(scanResult));
+        console.log(formatScanJSON(scanResults));
       } else {
-        formatScanTable(scanResult);
+        formatScanTable(scanResults);
       }
 
       // Determine exit code
-      const exitCode = getExitCode(scanResult, {
+      const exitCode = getExitCode(scanResults, {
         failOnHigh: failOnHigh !== undefined ? failOnHigh : true,
         failOnMedium: failOnMedium || false,
         failOnLow: failOnLow || false,
       });
 
       if (exitCode !== 0 && !json) {
-        consola.warn(
-          `Scan completed with risk level that triggers failure (exit code: ${exitCode})`,
-        );
+        const failedCount = scanResults.filter(
+          (r) => isError(r) || r.is_error,
+        ).length;
+        if (failedCount > 0) {
+          consola.warn(
+            `${failedCount} of ${scanResults.length} scan(s) failed`,
+          );
+        } else {
+          consola.warn(
+            `Scan completed with risk level that triggers failure (exit code: ${exitCode})`,
+          );
+        }
       }
 
       process.exit(exitCode);
