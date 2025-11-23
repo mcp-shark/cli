@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer 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"
+      }
+    },
+    "@21st-dev/magic": {
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest", "API_KEY=\"0a9ca03df12b1673e1f342c7116e50cb8b218a00d6f1c374afcd2ab7ad78fbb7\""]
+    }
+  }
+}
