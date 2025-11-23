@@ -9,17 +9,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { consola } from "consola";
-import { runAllServers } from "./lib/run.js";
-import { isError } from "./lib/error.js";
-import { checkScan } from "./lib/check.js";
-import { scheduleScans } from "./lib/schedule.js";
-import { createApiClient } from "./lib/api.js";
-import { displayTestingBanner } from "./lib/banner.js";
-import {
-  formatScanTable,
-  formatScanJSON,
-  getExitCode,
-} from "./lib/formatter.js";
+import { handleScanCommand } from "./lib/commands/scan.js";
+import { handleCheckCommand } from "./lib/commands/check.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -65,140 +56,9 @@ program
   )
   .option("--fail-on-medium", "Exit with error code if risk level is medium")
   .option("--fail-on-low", "Exit with error code if risk level is low")
-  .action(
-    async ({
-      config,
-      token,
-      verbose,
-      json,
-      failOnHigh,
-      failOnMedium,
-      failOnLow,
-    }) => {
-      // Display testing phase banner immediately (skip in JSON mode)
-      if (!json) {
-        displayTestingBanner();
-      }
-
-      const tokenValue = getToken(token);
-
-      // Configure logger verbosity
-      if (verbose) {
-        consola.level = 4; // Verbose mode
-      }
-
-      if (!json) {
-        consola.info(`Running scan with config: ${config}`);
-        consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
-        if (verbose) {
-          consola.debug("Verbose mode enabled");
-        }
-      }
-
-      const apiClient = createApiClient(tokenValue);
-      if (isError(apiClient)) {
-        if (json) {
-          console.error(
-            JSON.stringify(
-              {
-                error: "Failed to create API client",
-                details: apiClient.error,
-              },
-              null,
-              2,
-            ),
-          );
-        } else {
-          consola.error("Error creating API client:", apiClient.error);
-        }
-        process.exit(1);
-      }
-
-      // Run MCP servers to discover capabilities
-      if (!json) {
-        consola.info("Discovering MCP server capabilities...");
-      }
-      const runResult = await runAllServers(consola, config);
-      if (isError(runResult)) {
-        if (json) {
-          console.error(
-            JSON.stringify(
-              { error: "Failed to run MCP servers", details: runResult.error },
-              null,
-              2,
-            ),
-          );
-        } else {
-          consola.error("Error running MCP servers:", runResult.error);
-        }
-        process.exit(1);
-      }
-      if (!json) {
-        consola.debug(
-          "Fetched MCP results:",
-          JSON.stringify(runResult, null, 2),
-        );
-      }
-
-      // Perform scans (one per server)
-      const scanResults = await scheduleScans(
-        apiClient,
-        runResult,
-        consola,
-        json,
-      );
-
-      // Check if all scans failed
-      const allFailed = scanResults.every(
-        (result) => isError(result) || result.is_error,
-      );
-      if (allFailed && scanResults.length > 0) {
-        if (json) {
-          console.error(
-            JSON.stringify(
-              { error: "All scans failed", details: scanResults },
-              null,
-              2,
-            ),
-          );
-        } else {
-          consola.error("All scans failed. See details below.");
-        }
-        process.exit(1);
-      }
-
-      // Format output
-      if (json) {
-        console.log(formatScanJSON(scanResults));
-      } else {
-        formatScanTable(scanResults);
-      }
-
-      // Determine exit code
-      const exitCode = getExitCode(scanResults, {
-        failOnHigh: failOnHigh !== undefined ? failOnHigh : true,
-        failOnMedium: failOnMedium || false,
-        failOnLow: failOnLow || false,
-      });
-
-      if (exitCode !== 0 && !json) {
-        const failedCount = scanResults.filter(
-          (r) => isError(r) || r.is_error,
-        ).length;
-        if (failedCount > 0) {
-          consola.warn(
-            `${failedCount} of ${scanResults.length} scan(s) failed`,
-          );
-        } else {
-          consola.warn(
-            `Scan completed with risk level that triggers failure (exit code: ${exitCode})`,
-          );
-        }
-      }
-
-      process.exit(exitCode);
-    },
-  );
+  .action(async (options) => {
+    await handleScanCommand({ ...options, getToken });
+  });
 
 // Check command
 program
@@ -217,103 +77,9 @@ program
   )
   .option("--fail-on-medium", "Exit with error code if risk level is medium")
   .option("--fail-on-low", "Exit with error code if risk level is low")
-  .action(
-    async ({
-      scanId,
-      token,
-      verbose,
-      json,
-      failOnHigh,
-      failOnMedium,
-      failOnLow,
-    }) => {
-      // Display testing phase banner immediately (skip in JSON mode)
-      if (!json) {
-        displayTestingBanner();
-      }
-
-      const tokenValue = getToken(token);
-
-      // Configure logger verbosity
-      if (verbose) {
-        consola.level = 4; // Verbose mode
-      }
-
-      if (!json) {
-        consola.info(`Checking scan: ${scanId}`);
-        consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
-        if (verbose) {
-          consola.debug("Verbose mode enabled");
-        }
-      }
-
-      const apiClient = createApiClient(tokenValue);
-      if (isError(apiClient)) {
-        if (json) {
-          console.error(
-            JSON.stringify(
-              {
-                error: "Failed to create API client",
-                details: apiClient.error,
-              },
-              null,
-              2,
-            ),
-          );
-        } else {
-          consola.error("Error creating API client:", apiClient.error);
-        }
-        process.exit(1);
-      }
-
-      if (!json) {
-        consola.debug(`Getting scan: ${scanId}`);
-      }
-      const checkedScanResult = await checkScan(apiClient, scanId);
-      if (isError(checkedScanResult)) {
-        if (json) {
-          console.error(
-            JSON.stringify(
-              { error: "Failed to check scan", details: checkedScanResult },
-              null,
-              2,
-            ),
-          );
-        } else {
-          consola.error(
-            "Error checking scan:",
-            JSON.stringify(checkedScanResult, null, 2),
-          );
-        }
-        process.exit(1);
-      }
-
-      // Normalize the response - check returns { result: {...} } or direct object
-      const scanData = checkedScanResult.result || checkedScanResult;
-
-      // Format output
-      if (json) {
-        console.log(formatScanJSON(scanData));
-      } else {
-        formatScanTable(scanData);
-      }
-
-      // Determine exit code
-      const exitCode = getExitCode(scanData, {
-        failOnHigh: failOnHigh !== undefined ? failOnHigh : true,
-        failOnMedium: failOnMedium || false,
-        failOnLow: failOnLow || false,
-      });
-
-      if (exitCode !== 0 && !json) {
-        consola.warn(
-          `Scan completed with risk level that triggers failure (exit code: ${exitCode})`,
-        );
-      }
-
-      process.exit(exitCode);
-    },
-  );
+  .action(async (options) => {
+    await handleCheckCommand({ ...options, getToken });
+  });
 
 // Parse arguments
 program.parse();

@@ -104,6 +104,7 @@ node cli.js scan -c temp/mcps.json --token=your-token
 ### Scan Command
 
 Perform a security scan on MCP servers. This command will:
+
 1. Connect to each configured MCP server
 2. Discover their capabilities (tools, resources, prompts)
 3. Submit the data to the Smart Scan API
@@ -238,6 +239,7 @@ The CLI is designed for CI/CD pipelines with proper exit codes:
 ### Default Behavior
 
 By default, the CLI exits with code `1` if:
+
 - The scan itself failed (API error, network error, etc.)
 - The risk level is `high` or `critical`
 
@@ -266,24 +268,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-      
+          node-version: "20"
+
       - name: Install dependencies
         run: |
           cd cli
           npm install
-      
+
       - name: Run security scan
         env:
           APP_TOKEN: ${{ secrets.SMART_SCAN_TOKEN }}
         run: |
           cd cli
           ./cli scan -c temp/mcps.json --json > scan-result.json
-      
+
       - name: Check risk level
         run: |
           RISK_LEVEL=$(cat scan-result.json | jq -r '.overall_risk_level')
@@ -630,6 +632,7 @@ Errors are logged using `consola` with appropriate severity levels. API errors i
 ## Testing Phase Notice
 
 **This tool is currently in testing phase**. During this period:
+
 - Rate limit is set to **3 scans per day** per account
 - Features may change
 - We appreciate your patience and understanding
