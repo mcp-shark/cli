@@ -1,6 +1,8 @@
-# @mcp-shark/cli
-
-> Security scanning tool for Model Context Protocol (MCP) servers
+<div align="center">
+  <img src="https://raw.githubusercontent.com/mcp-shark-org/cli/main/assets/logo.png" alt="MCP Shark Logo" width="128" height="128">
+  <h1>@mcp-shark/cli</h1>
+  <p>Security scanning tool for Model Context Protocol (MCP) servers</p>
+</div>
 
 A command-line interface tool that automatically discovers MCP server capabilities (tools, resources, and prompts) and performs AI-powered security analysis. Perfect for CI/CD pipelines and automated security audits.
 
