@@ -84,6 +84,7 @@ Add this to your `~/.bashrc` or `~/.zshrc` to make it permanent.
 If you get permission errors with global installation, you can:
 
 1. **Use a node version manager** (recommended):
+
    ```bash
    # With nvm
    nvm install node
@@ -92,6 +93,7 @@ If you get permission errors with global installation, you can:
    ```
 
 2. **Change npm's default directory**:
+
    ```bash
    mkdir ~/.npm-global
    npm config set prefix '~/.npm-global'
@@ -104,4 +106,3 @@ If you get permission errors with global installation, you can:
    npm install @mcp-shark/cli
    npx @mcp-shark/cli scan -c config.json --token=your_token
    ```
-

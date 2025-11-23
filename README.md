@@ -533,7 +533,6 @@ mcp-shark-cli check --scan-id=scan-abc123
 }
 ```
 
-
 ## Testing Phase Notice
 
 ⚠️ **This tool is currently in testing phase**. During this period:
