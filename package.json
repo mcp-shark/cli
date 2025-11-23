@@ -13,14 +13,17 @@
     }
   },
   "bin": {
-    "cli": "./cli.js"
+    "cli": "./cli.js",
+    "@mcp-shark/cli": "./cli.js",
+    "mcp-shark-cli": "./cli.js"
   },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{js,json,css,md}\"",
-    "fix": "npm run lint:fix && npm run format"
+    "fix": "npm run lint:fix && npm run format",
+    "postinstall": "chmod +x cli.js cli 2>/dev/null || true"
   },
   "lint-staged": {
     "*.js": [

@@ -15,6 +15,11 @@ import { checkScan } from "./lib/check.js";
 import { scheduleScan } from "./lib/schedule.js";
 import { createApiClient } from "./lib/api.js";
 import { displayTestingBanner } from "./lib/banner.js";
+import {
+  formatScanTable,
+  formatScanJSON,
+  getExitCode,
+} from "./lib/formatter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -43,120 +48,192 @@ function getToken(cliToken) {
   return token;
 }
 
-// Schedule command
+// Scan command
 program
-  .command("schedule")
-  .description("Schedule a task")
-  .requiredOption("-c, --config <path>", "Path to configuration file")
+  .command("scan")
+  .description("Perform a security scan on MCP servers")
+  .requiredOption("-c, --config <path>", "Path to MCP configuration file")
   .option(
     "--token <token>",
     "Authentication token (or set APP_TOKEN environment variable)",
   )
-  .option("-d, --dry-run", "Run in dry-run mode (no changes will be made)")
   .option("--verbose", "Enable verbose output")
-  .action(async ({ config, token, dryRun, verbose }) => {
-    // Display testing phase banner immediately
-    displayTestingBanner();
+  .option("--json", "Output results as JSON (for piping to jq or other tools)")
+  .option(
+    "--fail-on-high",
+    "Exit with error code if risk level is high or critical",
+  )
+  .option("--fail-on-medium", "Exit with error code if risk level is medium")
+  .option("--fail-on-low", "Exit with error code if risk level is low")
+  .action(
+    async ({
+      config,
+      token,
+      verbose,
+      json,
+      failOnHigh,
+      failOnMedium,
+      failOnLow,
+    }) => {
+      // Display testing phase banner immediately
+      displayTestingBanner();
 
-    const tokenValue = getToken(token);
+      const tokenValue = getToken(token);
 
-    // Configure logger verbosity
-    if (verbose) {
-      consola.level = 4; // Verbose mode
-    }
+      // Configure logger verbosity
+      if (verbose) {
+        consola.level = 4; // Verbose mode
+      }
 
-    consola.info(`Scheduling with config: ${config}`);
-    consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
+      if (!json) {
+        consola.info(`Running scan with config: ${config}`);
+      }
+      consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
 
-    if (dryRun) {
-      consola.warn("Dry-run mode enabled - no changes will be made");
-    }
+      if (verbose) {
+        consola.debug("Verbose mode enabled");
+      }
 
-    if (verbose) {
-      consola.debug("Verbose mode enabled");
-    }
+      const apiClient = createApiClient(tokenValue);
+      if (isError(apiClient)) {
+        consola.error("Error creating API client:", apiClient.error);
+        process.exit(1);
+      }
 
-    const apiClient = createApiClient(tokenValue);
-    if (isError(apiClient)) {
-      consola.error("Error creating API client:", apiClient.error);
-      process.exit(1);
-    }
+      // Run MCP servers to discover capabilities
+      if (!json) {
+        consola.info("Discovering MCP server capabilities...");
+      }
+      const runResult = await runAllServers(consola, config);
+      if (isError(runResult)) {
+        consola.error("Error running MCP servers:", runResult.error);
+        process.exit(1);
+      }
+      consola.debug("Fetched MCP results:", JSON.stringify(runResult, null, 2));
 
-    // Run MCP
-    const runResult = await runAllServers(consola, config);
-    if (isError(runResult)) {
-      consola.error("Error running MCP:", runResult.error);
-      process.exit(1);
-    }
-    consola.debug("Fetched MCP results:", JSON.stringify(runResult, null, 2));
+      // Perform the scan
+      if (!json) {
+        consola.info("Submitting scan to security analysis API...");
+      }
+      const scanResult = await scheduleScan(apiClient, runResult);
+      if (isError(scanResult)) {
+        consola.error(
+          "Error performing scan:",
+          JSON.stringify(scanResult, null, 2),
+        );
+        process.exit(1);
+      }
 
-    const scheduledScanResult = await scheduleScan(apiClient, runResult);
-    if (isError(scheduledScanResult)) {
-      consola.error(
-        "Error scheduling scan:",
-        JSON.stringify(scheduledScanResult, null, 2),
-      );
-      process.exit(1);
-    }
-    consola.debug(
-      "Scheduled scan:",
-      JSON.stringify(scheduledScanResult, null, 2),
-    );
-    consola.success(
-      "Schedule command executed",
-      `Scan ID: ${scheduledScanResult.id}`,
-    );
-  });
+      // Format output
+      if (json) {
+        console.log(formatScanJSON(scanResult));
+      } else {
+        formatScanTable(scanResult);
+      }
+
+      // Determine exit code
+      const exitCode = getExitCode(scanResult, {
+        failOnHigh: failOnHigh !== undefined ? failOnHigh : true,
+        failOnMedium: failOnMedium || false,
+        failOnLow: failOnLow || false,
+      });
+
+      if (exitCode !== 0 && !json) {
+        consola.warn(
+          `Scan completed with risk level that triggers failure (exit code: ${exitCode})`,
+        );
+      }
+
+      process.exit(exitCode);
+    },
+  );
 
 // Check command
 program
   .command("check")
-  .description("Check a job")
+  .description("Check the status and results of a previously performed scan")
   .requiredOption("-j, --scan-id <scanId>", "Scan ID to check")
   .option(
     "--token <token>",
     "Authentication token (or set APP_TOKEN environment variable)",
   )
   .option("--verbose", "Enable verbose output")
-  .action(async ({ scanId, token, verbose }) => {
-    // Display testing phase banner immediately
-    displayTestingBanner();
+  .option("--json", "Output results as JSON (for piping to jq or other tools)")
+  .option(
+    "--fail-on-high",
+    "Exit with error code if risk level is high or critical",
+  )
+  .option("--fail-on-medium", "Exit with error code if risk level is medium")
+  .option("--fail-on-low", "Exit with error code if risk level is low")
+  .action(
+    async ({
+      scanId,
+      token,
+      verbose,
+      json,
+      failOnHigh,
+      failOnMedium,
+      failOnLow,
+    }) => {
+      // Display testing phase banner immediately
+      displayTestingBanner();
 
-    const tokenValue = getToken(token);
+      const tokenValue = getToken(token);
 
-    // Configure logger verbosity
-    if (verbose) {
-      consola.level = 4; // Verbose mode
-    }
+      // Configure logger verbosity
+      if (verbose) {
+        consola.level = 4; // Verbose mode
+      }
 
-    consola.info(`Checking scan: ${scanId}`);
-    consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
+      consola.info(`Checking scan: ${scanId}`);
+      consola.debug(`Token: ${tokenValue.substring(0, 8)}...`);
 
-    if (verbose) {
-      consola.debug("Verbose mode enabled");
-    }
+      if (verbose) {
+        consola.debug("Verbose mode enabled");
+      }
 
-    const apiClient = createApiClient(tokenValue);
-    if (isError(apiClient)) {
-      consola.error("Error creating API client:", apiClient.error);
-      process.exit(1);
-    }
+      const apiClient = createApiClient(tokenValue);
+      if (isError(apiClient)) {
+        consola.error("Error creating API client:", apiClient.error);
+        process.exit(1);
+      }
 
-    consola.debug(`Getting scan: ${scanId}`);
-    const checkedScanResult = await checkScan(apiClient, scanId);
-    if (isError(checkedScanResult)) {
-      consola.error(
-        "Error checking scan:",
-        JSON.stringify(checkedScanResult, null, 2),
-      );
-      process.exit(1);
-    }
-    consola.success(
-      "Check command executed",
-      JSON.stringify(checkedScanResult, null, 2),
-    );
-    consola.info("Scan details:", JSON.stringify(checkedScanResult, null, 2));
-  });
+      consola.debug(`Getting scan: ${scanId}`);
+      const checkedScanResult = await checkScan(apiClient, scanId);
+      if (isError(checkedScanResult)) {
+        consola.error(
+          "Error checking scan:",
+          JSON.stringify(checkedScanResult, null, 2),
+        );
+        process.exit(1);
+      }
+
+      // Normalize the response - check returns { result: {...} } or direct object
+      const scanData = checkedScanResult.result || checkedScanResult;
+
+      // Format output
+      if (json) {
+        console.log(formatScanJSON(scanData));
+      } else {
+        formatScanTable(scanData);
+      }
+
+      // Determine exit code
+      const exitCode = getExitCode(scanData, {
+        failOnHigh: failOnHigh !== undefined ? failOnHigh : true,
+        failOnMedium: failOnMedium || false,
+        failOnLow: failOnLow || false,
+      });
+
+      if (exitCode !== 0 && !json) {
+        consola.warn(
+          `Scan completed with risk level that triggers failure (exit code: ${exitCode})`,
+        );
+      }
+
+      process.exit(exitCode);
+    },
+  );
 
 // Parse arguments
 program.parse();
