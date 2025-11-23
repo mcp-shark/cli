@@ -1,0 +1,46 @@
+# Development files
+.git/
+.gitignore
+.github/
+node_modules/
+temp/
+*.log
+*.md
+!README.md
+
+# Test files
+test/
+*.test.js
+*.spec.js
+
+# Development configs
+.eslintrc*
+.prettierrc*
+commitlint.config.cjs
+eslint.config.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+.next/
+dist/
+build/
+
+# Scripts (not needed in npm package)
+install.sh
+quick-install.sh
+mcp-shark-cli
+
+# Documentation (keep only README)
+docs/
+INSTALL.md
+

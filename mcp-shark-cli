@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Direct execution wrapper for @mcp-shark/cli
+# Downloads and runs the CLI from GitHub on-the-fly
+
+set -e
+
+# Configuration
+REPO="mcp-shark-org/cli"
+VERSION="${MCP_SHARK_CLI_VERSION:-latest}"
+CACHE_DIR="${MCP_SHARK_CLI_CACHE:-$HOME/.cache/mcp-shark-cli}"
+
+# Get latest version if needed
+if [ "$VERSION" = "latest" ]; then
+  VERSION=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' || echo "main")
+fi
+
+# Cache directory for this version
+VERSION_DIR="$CACHE_DIR/$VERSION"
+
+# Check if already cached
+if [ ! -d "$VERSION_DIR" ] || [ ! -f "$VERSION_DIR/cli.js" ]; then
+  echo "Downloading @mcp-shark/cli ($VERSION)..." >&2
+  
+  # Create cache directory
+  mkdir -p "$CACHE_DIR"
+  
+  # Create temporary directory
+  TMP_DIR=$(mktemp -d)
+  trap "rm -rf $TMP_DIR" EXIT
+  
+  # Download from GitHub
+  if [ "$VERSION" = "main" ] || [ "$VERSION" = "master" ]; then
+    GITHUB_URL="https://github.com/$REPO/archive/refs/heads/main.tar.gz"
+  else
+    GITHUB_URL="https://github.com/$REPO/archive/refs/tags/$VERSION.tar.gz"
+  fi
+  
+  curl -sL "$GITHUB_URL" -o "$TMP_DIR/cli.tar.gz"
+  
+  # Extract
+  cd "$TMP_DIR"
+  tar -xzf cli.tar.gz
+  CLI_DIR=$(find . -maxdepth 1 -type d -name "cli-*" | head -1)
+  
+  if [ -z "$CLI_DIR" ]; then
+    echo "Error: Could not find CLI directory" >&2
+    exit 1
+  fi
+  
+  # Copy to cache
+  mkdir -p "$VERSION_DIR"
+  cp -r "$CLI_DIR"/* "$VERSION_DIR/"
+  
+  # Install dependencies if needed
+  if [ ! -d "$VERSION_DIR/node_modules" ]; then
+    echo "Installing dependencies..." >&2
+    cd "$VERSION_DIR"
+    npm install --production --silent
+  fi
+fi
+
+# Execute the CLI
+exec node "$VERSION_DIR/cli.js" "$@"
+
