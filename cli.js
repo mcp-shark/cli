@@ -26,7 +26,7 @@ const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
 const program = new Command();
 
 program
-  .name('mytool')
+  .name('cli')
   .description('CLI tool for security scanning')
   .version(pkg.version);
 
@@ -72,7 +72,7 @@ program
       consola.debug('Verbose mode enabled');
     }
 
-    const apiClient = createApiClient(tokenValue, process.env.API_BASE_URL);
+    const apiClient = createApiClient(tokenValue);
     if (isError(apiClient)) {
       consola.error('Error creating API client:', apiClient.error);
       process.exit(1);
@@ -129,7 +129,7 @@ program
       consola.debug('Verbose mode enabled');
     }
 
-    const apiClient = createApiClient(tokenValue, process.env.API_BASE_URL);
+    const apiClient = createApiClient(tokenValue);
     if (isError(apiClient)) {
       consola.error('Error creating API client:', apiClient.error);
       process.exit(1);

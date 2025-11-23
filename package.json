@@ -1,6 +1,6 @@
 
 {
-  "name": "cli",
+  "name": "@mcp-shark/cli",
   "version": "1.0.0",
   "description": "CLI tool and library for security scanning with MCP servers",
   "main": "index.js",
@@ -13,7 +13,7 @@
     }
   },
   "bin": {
-    "wip": "./cli.js"
+    "cli": "./cli.js"
   },
   "scripts": {
     "lint": "eslint . --ext .js",

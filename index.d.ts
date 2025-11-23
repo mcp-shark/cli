@@ -113,14 +113,10 @@ export interface ScanData {
 /**
  * Create an API client instance
  * @param apiKey - Authentication token for the API
- * @param baseUrl - Base URL for the API (optional, can use API_BASE_URL env var)
  * @returns Axios instance configured for the API
- * @throws {ApiError} If baseUrl or apiKey is not provided
+ * @throws {ApiError} If apiKey is not provided
  */
-export function createApiClient(
-  apiKey: string,
-  baseUrl?: string
-): AxiosInstance;
+export function createApiClient(apiKey: string): AxiosInstance;
 
 /**
  * Create a new scan via the API

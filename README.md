@@ -53,8 +53,6 @@ node cli.js schedule --config=temp/mcps.json --token=your-token
 # Using environment variable for token
 APP_TOKEN=your-token node cli.js schedule --config=temp/mcps.json
 
-# With custom API base URL
-API_BASE_URL=https://api.example.com APP_TOKEN=your-token node cli.js schedule --config=temp/mcps.json
 
 # Dry-run mode (no actual connections or API calls)
 node cli.js schedule --config=temp/mcps.json --dry-run
@@ -70,7 +68,8 @@ node cli.js schedule --config=temp/mcps.json --dry-run
 **Environment Variables:**
 
 - `APP_TOKEN`: Authentication token for the API (required if not provided via `--token`)
-- `API_BASE_URL`: Base URL for the security scanning API (required)
+
+The CLI connects to `https://smart.mcpshark.sh` automatically.
 
 **What it does:**
 
@@ -94,8 +93,6 @@ node cli.js check --scan-id=scan123 --token=your-token --verbose
 # Using environment variable for token
 APP_TOKEN=your-token node cli.js check --scan-id=scan123
 
-# With custom API base URL
-API_BASE_URL=https://api.example.com APP_TOKEN=your-token node cli.js check --scan-id=scan123
 ```
 
 **Options:**
@@ -107,7 +104,8 @@ API_BASE_URL=https://api.example.com APP_TOKEN=your-token node cli.js check --sc
 **Environment Variables:**
 
 - `APP_TOKEN`: Authentication token for the API (required if not provided via `--token`)
-- `API_BASE_URL`: Base URL for the security scanning API (required)
+
+The CLI connects to `https://smart.mcpshark.sh` automatically.
 
 ## Configuration File Format
 
@@ -195,15 +193,11 @@ All API requests require authentication using a Bearer token:
 
 ### API Base URL
 
-The API base URL can be configured:
-
-- Set the `API_BASE_URL` environment variable (recommended)
-- The API client will use this URL for all requests
+The CLI automatically connects to `https://smart.mcpshark.sh`. No configuration needed.
 
 Example:
 
 ```bash
-export API_BASE_URL=https://api.example.com
 export APP_TOKEN=your-token-here
 node cli.js schedule --config=mcps.json
 ```
@@ -248,7 +242,7 @@ Create a configuration file (`mcps.json`):
 Run the schedule command:
 
 ```bash
-APP_TOKEN=your-api-token API_BASE_URL=https://api.example.com node cli.js schedule --config=mcps.json --verbose
+APP_TOKEN=your-api-token node cli.js schedule --config=mcps.json --verbose
 ```
 
 Output:
@@ -262,7 +256,7 @@ Output:
 Use the scan ID from the previous step:
 
 ```bash
-APP_TOKEN=your-api-token API_BASE_URL=https://api.example.com node cli.js check --scan-id=scan-abc123 --verbose
+APP_TOKEN=your-api-token node cli.js check --scan-id=scan-abc123 --verbose
 ```
 
 ### Example: stdio Transport
