@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/mcp-shark-org/cli/main/assets/logo.png" alt="MCP Shark Logo" width="128" height="128">
+  <img src="https://smart.mcpshark.sh/icon_512x512.png" alt="MCP Shark Logo" width="128" height="128">
   <h1>@mcp-shark/cli</h1>
   <p>Security scanning tool for Model Context Protocol (MCP) servers</p>
 </div>
