@@ -1,76 +1,59 @@
-# Smart Scan CLI Tool
+# @mcp-shark/cli
 
-A command-line interface tool for performing security scans on Model Context Protocol (MCP) servers. The CLI automatically discovers MCP server capabilities (tools, resources, and prompts) and submits them to the Smart Scan API for security analysis.
+> Security scanning tool for Model Context Protocol (MCP) servers
+
+A command-line interface tool that automatically discovers MCP server capabilities (tools, resources, and prompts) and performs AI-powered security analysis. Perfect for CI/CD pipelines and automated security audits.
+
+## Quick Start
+
+```bash
+# Install globally
+npm install -g @mcp-shark/cli
+
+# Get your API token from https://smart.mcpshark.sh/tokens
+
+# Run a scan
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here
+```
+
+## Features
+
+- 🔍 **Automatic Discovery**: Automatically discovers tools, resources, and prompts from MCP servers
+- 🚀 **Multiple Transports**: Supports stdio, HTTP/SSE, and WebSocket connections
+- 📊 **Flexible Output**: Human-readable tables or JSON for CI/CD pipelines
+- 🔒 **Security Analysis**: AI-powered analysis of MCP server security risks
+- ⚡ **CI/CD Ready**: Proper exit codes and JSON output for automation
+- 📝 **Verbose Logging**: Detailed debug output when needed
 
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Features](#features)
 - [Installation](#installation)
-  - [Local Development](#local-development)
-  - [Using the CLI](#using-the-cli)
 - [Getting Your API Token](#getting-your-api-token)
 - [Usage](#usage)
   - [Scan Command](#scan-command)
   - [Check Command](#check-command)
 - [Output Formats](#output-formats)
-  - [Table Format (Default)](#table-format-default)
-  - [JSON Format](#json-format)
 - [CI/CD Integration](#cicd-integration)
-  - [Exit Codes](#exit-codes)
-  - [Default Behavior](#default-behavior)
-  - [Customizing Failure Conditions](#customizing-failure-conditions)
-  - [GitHub Actions Example](#github-actions-example)
-  - [Using with jq](#using-with-jq)
 - [Configuration File Format](#configuration-file-format)
-  - [Transport Types](#transport-types)
-  - [Configuration Merging](#configuration-merging)
-- [API Integration](#api-integration)
-  - [API Endpoints](#api-endpoints)
-  - [Authentication](#authentication)
-  - [Rate Limits](#rate-limits)
-  - [Response Format](#response-format)
 - [Examples](#examples)
-  - [Complete Workflow Example](#complete-workflow-example)
-- [Project Structure](#project-structure)
-- [Development](#development)
-  - [Scripts](#scripts)
-  - [Code Quality](#code-quality)
-  - [Commit Messages](#commit-messages)
-- [Dependencies](#dependencies)
-  - [Runtime Dependencies](#runtime-dependencies)
-  - [Development Dependencies](#development-dependencies)
-- [Error Handling](#error-handling)
 - [Testing Phase Notice](#testing-phase-notice)
 - [Contributing](#contributing)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Feature Requests](#feature-requests)
-  - [Pull Requests](#pull-requests)
-  - [Code Style](#code-style)
-  - [Development Setup](#development-setup)
-- [License](#license)
 - [Support](#support)
-
-## Features
-
-- **Multiple Transport Support**: Connect to MCP servers via stdio, HTTP/SSE, or WebSocket
-- **MCP Config Parsing**: Automatic parsing and normalization of MCP configuration files
-- **Capability Discovery**: Automatically discovers tools, resources, and prompts from MCP servers
-- **API Integration**: Submits scan results to the Smart Scan security analysis API
-- **Tabular & JSON Output**: Human-readable table format or JSON for CI/CD pipelines
-- **Verbose Logging**: Detailed debug output with `consola` logger
-- **Error Handling**: Comprehensive error handling with custom error types
-- **Exit Codes**: Proper exit codes for CI/CD integration (fail on high/medium/low risk)
-- **Scan Status Checking**: Check the status and results of previously performed scans
+- [License](#license)
 
 ## Installation
 
-### npm (Recommended)
+### Global Installation (Recommended)
 
 ```bash
-# Global installation
 npm install -g @mcp-shark/cli
+```
 
-# Use it
+After installation, use the CLI from anywhere:
+
+```bash
 mcp-shark-cli scan -c config.json --token=your_token
 ```
 
@@ -86,6 +69,16 @@ Then use with npx:
 npx @mcp-shark/cli scan -c config.json --token=your_token
 ```
 
+Or add to your `package.json` scripts:
+
+```json
+{
+  "scripts": {
+    "scan": "mcp-shark-cli scan -c config.json"
+  }
+}
+```
+
 ### Using npx (No Installation)
 
 If you have npm but don't want to install globally:
@@ -94,33 +87,10 @@ If you have npm but don't want to install globally:
 npx -y @mcp-shark/cli scan -c config.json --token=your_token
 ```
 
-For more installation options, see [INSTALL.md](./INSTALL.md).
+### Requirements
 
-### Local Development
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd cli
-
-# Install dependencies
-npm install
-```
-
-### Using the CLI
-
-You can run the CLI in several ways:
-
-```bash
-# Direct execution (after making executable)
-./cli scan -c temp/mcps.json --token=your-token
-
-# Using npx (from the project directory)
-npx . scan -c temp/mcps.json --token=your-token
-
-# Using node directly
-node cli.js scan -c temp/mcps.json --token=your-token
-```
+- **Node.js** v18 or higher
+- **npm** (comes with Node.js)
 
 ## Getting Your API Token
 
@@ -144,20 +114,20 @@ Perform a security scan on MCP servers. This command will:
 
 ```bash
 # Basic usage
-./cli scan -c temp/mcps.json --token=your-token
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here
 
 # Using environment variable for token
-export APP_TOKEN=your-token
-./cli scan -c temp/mcps.json
+export APP_TOKEN=sk_your_token_here
+mcp-shark-cli scan -c mcp-config.json
 
 # With verbose output
-./cli scan -c temp/mcps.json --token=your-token --verbose
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --verbose
 
 # JSON output (for CI/CD pipelines)
-./cli scan -c temp/mcps.json --token=your-token --json
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --json
 
 # Fail on medium risk as well (default: only fails on high/critical)
-./cli scan -c temp/mcps.json --token=your-token --fail-on-medium
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --fail-on-medium
 ```
 
 **Options:**
@@ -182,17 +152,17 @@ Check the status and results of a previously performed scan:
 
 ```bash
 # Basic usage
-./cli check --scan-id=scan123 --token=your-token
+mcp-shark-cli check --scan-id=scan123 --token=sk_your_token_here
 
 # With verbose output
-./cli check --scan-id=scan123 --token=your-token --verbose
+mcp-shark-cli check --scan-id=scan123 --token=sk_your_token_here --verbose
 
 # JSON output
-./cli check --scan-id=scan123 --token=your-token --json
+mcp-shark-cli check --scan-id=scan123 --token=sk_your_token_here --json
 
 # Using environment variable for token
-export APP_TOKEN=your-token
-./cli check --scan-id=scan123
+export APP_TOKEN=sk_your_token_here
+mcp-shark-cli check --scan-id=scan123
 ```
 
 **Options:**
@@ -230,7 +200,7 @@ The default output shows scan results in a formatted table:
 Use `--json` flag for machine-readable output:
 
 ```bash
-./cli scan -c temp/mcps.json --token=your-token --json
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --json
 ```
 
 Output:
@@ -279,13 +249,13 @@ By default, the CLI exits with code `1` if:
 
 ```bash
 # Fail on medium risk as well
-./cli scan -c temp/mcps.json --token=your-token --fail-on-medium
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --fail-on-medium
 
 # Fail on low risk too
-./cli scan -c temp/mcps.json --token=your-token --fail-on-low
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --fail-on-low
 
 # Don't fail on high risk (not recommended)
-./cli scan -c temp/mcps.json --token=your-token --no-fail-on-high
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --no-fail-on-high
 ```
 
 ### GitHub Actions Example
@@ -306,17 +276,14 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
-        run: |
-          cd cli
-          npm install
+      - name: Install CLI
+        run: npm install -g @mcp-shark/cli
 
       - name: Run security scan
         env:
           APP_TOKEN: ${{ secrets.SMART_SCAN_TOKEN }}
         run: |
-          cd cli
-          ./cli scan -c temp/mcps.json --json > scan-result.json
+          mcp-shark-cli scan -c mcp-config.json --json > scan-result.json
 
       - name: Check risk level
         run: |
@@ -331,16 +298,16 @@ jobs:
 
 ```bash
 # Get risk level
-./cli scan -c temp/mcps.json --token=your-token --json | jq -r '.overall_risk_level'
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --json | jq -r '.overall_risk_level'
 
 # Get scan ID
-./cli scan -c temp/mcps.json --token=your-token --json | jq -r '.id'
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --json | jq -r '.id'
 
 # Check if scan was successful
-./cli scan -c temp/mcps.json --token=your-token --json | jq -r '.status'
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --json | jq -r '.status'
 
 # Get rate limit info
-./cli scan -c temp/mcps.json --token=your-token --json | jq '.rate_limit'
+mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --json | jq '.rate_limit'
 ```
 
 ## Configuration File Format
@@ -515,13 +482,13 @@ All API requests require authentication using a Bearer token:
 
 ```bash
 export APP_TOKEN=sk_your_token_here
-./cli scan -c mcps.json --verbose
+mcp-shark-cli scan -c mcps.json --verbose
 ```
 
 **Step 3: Check scan results (if needed):**
 
 ```bash
-./cli check --scan-id=scan-abc123
+mcp-shark-cli check --scan-id=scan-abc123
 ```
 
 ### Example: stdio Transport
@@ -566,104 +533,10 @@ export APP_TOKEN=sk_your_token_here
 }
 ```
 
-## Project Structure
-
-```
-cli/
-├── cli.js              # Main CLI entry point
-├── cli                 # Symlink to cli.js for ./cli execution
-├── lib/
-│   ├── api.js          # API client for Smart Scan service
-│   ├── banner.js       # Testing phase banner display
-│   ├── check.js        # Scan status checking logic
-│   ├── client.js       # MCP client creation and management
-│   ├── config.js       # Configuration parsing and normalization
-│   ├── error.js        # Error handling utilities
-│   ├── formatter.js    # Output formatting (table/JSON)
-│   ├── request.js      # MCP request handlers
-│   ├── run.js          # MCP server execution logic
-│   ├── schedule.js     # Scan submission logic
-│   └── transport.js    # Transport factory
-├── temp/               # Example configurations and test scripts
-└── package.json
-```
-
-## Development
-
-### Scripts
-
-```bash
-# Lint code
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-
-# Format code
-npm run format
-
-# Check formatting
-npm run format:check
-
-# Run both lint:fix and format
-npm run fix
-```
-
-### Code Quality
-
-This project uses:
-
-- **ESLint** for code linting
-- **Prettier** for code formatting
-- **Husky** for git hooks
-- **lint-staged** for pre-commit checks
-- **commitlint** for commit message validation
-
-### Commit Messages
-
-This project follows [Conventional Commits](https://www.conventionalcommits.org/) format:
-
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-
-## Dependencies
-
-### Runtime Dependencies
-
-- `@modelcontextprotocol/sdk`: MCP SDK for client/server communication
-- `axios`: HTTP client for API requests
-- `cli-boxes`: Terminal box drawing for banners
-- `commander`: CLI argument parsing
-- `consola`: Beautiful console logging
-
-### Development Dependencies
-
-- `eslint`: Code linting
-- `prettier`: Code formatting
-- `husky`: Git hooks
-- `lint-staged`: Pre-commit linting
-- `@commitlint/cli`: Commit message linting
-
-## Error Handling
-
-The CLI uses a custom error handling system:
-
-- `MCPError`: Base error class for all MCP-related errors
-- `ConfigError`: Configuration parsing errors
-- `TransportError`: Transport creation errors
-- `RunError`: Server execution errors
-- `ApiError`: API client and request errors
-
-Errors are logged using `consola` with appropriate severity levels. API errors include error codes and messages from the API response.
 
 ## Testing Phase Notice
 
-**This tool is currently in testing phase**. During this period:
+⚠️ **This tool is currently in testing phase**. During this period:
 
 - Rate limit is set to **3 scans per day** per account
 - Features may change
@@ -673,72 +546,11 @@ The banner will be displayed when running scan commands to remind users of this 
 
 ## Contributing
 
-We welcome contributions! Here's how you can help:
+We welcome contributions! Please see our [Contributing Guide](https://github.com/mcp-shark-org/cli/blob/main/CONTRIBUTING.md) for details.
 
-### Reporting Bugs
-
-If you find a bug, please open an issue on GitHub with:
-
-1. **Clear description** of the bug
-2. **Steps to reproduce** the issue
-3. **Expected behavior** vs **actual behavior**
-4. **Environment details**:
-   - Node.js version
-   - Operating system
-   - CLI version
-5. **Error messages** or logs (if applicable)
-6. **Minimal example** that reproduces the issue (if possible)
-
-### Feature Requests
-
-For feature requests:
-
-1. Open an issue describing the feature
-2. Explain the use case and why it would be valuable
-3. Discuss implementation approach if you have ideas
-
-### Pull Requests
-
-1. **Fork the repository**
-2. **Create a feature branch** from `main`:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. **Make your changes** following the code style guidelines
-4. **Test your changes** thoroughly
-5. **Ensure all checks pass**:
-   ```bash
-   npm run lint:fix
-   npm run format
-   ```
-6. **Commit your changes** using conventional commits:
-   ```bash
-   git commit -m "feat: add new feature"
-   ```
-7. **Push to your fork**:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-8. **Open a Pull Request** with:
-   - Clear description of changes
-   - Reference to related issues (if any)
-   - Screenshots or examples (if applicable)
-
-### Code Style
-
-- Follow the existing code style
-- Run `npm run lint:fix` and `npm run format` before committing
-- Write clear, self-documenting code
-- Add comments for complex logic
-- Keep functions focused and small
-
-### Development Setup
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Make changes in your feature branch
-4. Test locally with: `./cli scan -c temp/mcps.json --token=your-token`
-5. Run linting and formatting before committing
+- **Report bugs**: [Open an issue](https://github.com/mcp-shark-org/cli/issues)
+- **Request features**: [Open an issue](https://github.com/mcp-shark-org/cli/issues)
+- **Submit PRs**: [Fork and contribute](https://github.com/mcp-shark-org/cli)
 
 ## License
 
@@ -746,6 +558,7 @@ ISC
 
 ## Support
 
-- **Documentation**: See [Smart Scan API Usage Guide](../smart-scan-web-app/docs/API-USAGE.md)
-- **Issues**: Report bugs or request features on GitHub
 - **Web Application**: [https://smart.mcpshark.sh](https://smart.mcpshark.sh)
+- **Documentation**: [Full Documentation](https://github.com/mcp-shark-org/cli#readme)
+- **Issues**: [Report bugs or request features](https://github.com/mcp-shark-org/cli/issues)
+- **Repository**: [GitHub](https://github.com/mcp-shark-org/cli)
