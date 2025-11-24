@@ -1,6 +1,6 @@
 {
   "name": "@mcp-shark/cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CLI tool and library for security scanning with MCP servers",
   "main": "index.js",
   "types": "index.d.ts",
