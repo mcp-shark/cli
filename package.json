@@ -49,12 +49,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mcp-shark-org/cli.git"
+    "url": "https://github.com/mcp-shark/cli.git"
   },
   "bugs": {
-    "url": "https://github.com/mcp-shark-org/cli/issues"
+    "url": "https://github.com/mcp-shark/cli/issues"
   },
-  "homepage": "https://github.com/mcp-shark-org/cli#readme",
+  "homepage": "https://github.com/mcp-shark/cli#readme",
   "engines": {
     "node": ">=18.0.0"
   },
