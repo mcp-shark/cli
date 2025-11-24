@@ -547,11 +547,11 @@ The banner will be displayed when running scan commands to remind users of this 
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://github.com/mcp-shark-org/cli/blob/main/CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](https://github.com/mcp-shark/cli/blob/main/CONTRIBUTING.md) for details.
 
-- **Report bugs**: [Open an issue](https://github.com/mcp-shark-org/cli/issues)
-- **Request features**: [Open an issue](https://github.com/mcp-shark-org/cli/issues)
-- **Submit PRs**: [Fork and contribute](https://github.com/mcp-shark-org/cli)
+- **Report bugs**: [Open an issue](https://github.com/mcp-shark/cli/issues)
+- **Request features**: [Open an issue](https://github.com/mcp-shark/cli/issues)
+- **Submit PRs**: [Fork and contribute](https://github.com/mcp-shark/cli)
 
 ## License
 
@@ -560,6 +560,6 @@ ISC
 ## Support
 
 - **Web Application**: [https://smart.mcpshark.sh](https://smart.mcpshark.sh)
-- **Documentation**: [Full Documentation](https://github.com/mcp-shark-org/cli#readme)
-- **Issues**: [Report bugs or request features](https://github.com/mcp-shark-org/cli/issues)
-- **Repository**: [GitHub](https://github.com/mcp-shark-org/cli)
+- **Documentation**: [Full Documentation](https://github.com/mcp-shark/cli#readme)
+- **Issues**: [Report bugs or request features](https://github.com/mcp-shark/cli/issues)
+- **Repository**: [GitHub](https://github.com/mcp-shark/cli)
