@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { AxiosInstance } from "axios";
 
 /**
  * Base error class for all MCP-related errors
@@ -47,7 +47,7 @@ export interface Logger {
 /**
  * Server configuration for MCP servers
  * Compatible with MCP configuration files used by Cursor, Claude Desktop, and other IDEs
- * 
+ *
  * Transport types:
  * - stdio (default): requires 'command', optional 'args' and 'env'
  * - http/sse/streamable-http: requires 'url', optional 'headers'
@@ -55,7 +55,7 @@ export interface Logger {
  */
 export interface ServerConfig {
   /** Transport type: 'stdio', 'http', 'sse', 'streamable-http', 'ws', or 'websocket' (defaults to 'stdio') */
-  type?: 'stdio' | 'http' | 'sse' | 'streamable-http' | 'ws' | 'websocket';
+  type?: "stdio" | "http" | "sse" | "streamable-http" | "ws" | "websocket";
   /** Command to run (required for stdio transport) */
   command?: string;
   /** Command arguments (for stdio transport) */
@@ -135,10 +135,7 @@ export function createScan(
  * @param scanId - Scan ID to retrieve
  * @returns Scan data or ApiError if request fails
  */
-export function getScan(
-  apiClient: AxiosInstance,
-  scanId: string
-): Promise<ScanData | ApiError>;
+export function getScan(apiClient: AxiosInstance, scanId: string): Promise<ScanData | ApiError>;
 
 /**
  * Schedule a scan by submitting server run results
@@ -157,10 +154,7 @@ export function scheduleScan(
  * @param scanId - Scan ID to check
  * @returns Scan data or ApiError if request fails
  */
-export function checkScan(
-  apiClient: AxiosInstance,
-  scanId: string
-): Promise<ScanData | ApiError>;
+export function checkScan(apiClient: AxiosInstance, scanId: string): Promise<ScanData | ApiError>;
 
 /**
  * Run a single MCP server and collect its capabilities
@@ -186,4 +180,3 @@ export function runAllServers(
   logger: Logger,
   configPath: string
 ): Promise<ServerRunResult[] | RunError>;
-

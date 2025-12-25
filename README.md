@@ -177,6 +177,46 @@ mcp-shark-cli check --scan-id=scan123
 - `--fail-on-medium`: Exit with error code if risk level is medium (default: disabled)
 - `--fail-on-low`: Exit with error code if risk level is low (default: disabled)
 
+### AgentRadar Scan Command
+
+Scan agent cards or MCP server data using AgentRadar analysis. This command detects privilege escalation paths and agent-to-agent vulnerabilities.
+
+```bash
+# Scan from local file
+mcp-shark-cli agentradar scan -i agent-card.json --token=sk_your_token_here
+
+# Scan from URL (downloads agent card automatically)
+mcp-shark-cli agentradar scan -i https://example.com/agent-card.json --token=sk_your_token_here
+
+# JSON output
+mcp-shark-cli agentradar scan -i agent-card.json --token=sk_your_token_here --json
+
+# Using environment variable for token
+export APP_TOKEN=sk_your_token_here
+mcp-shark-cli agentradar scan -i agent-card.json
+```
+
+**Options:**
+
+- `-i, --input <path>` (required): Path to agent card JSON file or URL to download agent card from
+- `--token <token>`: Authentication token for API (or set `APP_TOKEN` environment variable)
+- `--verbose`: Enable verbose output
+- `--json`: Output results as JSON (for piping to jq or other tools)
+- `--fail-on-high`: Exit with error code if risk level is high or critical (default: enabled)
+- `--fail-on-medium`: Exit with error code if risk level is medium (default: disabled)
+- `--fail-on-low`: Exit with error code if risk level is low (default: disabled)
+
+**Input Formats:**
+
+The command accepts:
+- **Local file path**: Path to a JSON file containing agent card or MCP server data
+- **URL**: HTTP/HTTPS URL to download agent card from (e.g., `https://example.com/agent.json`)
+
+**Environment Variables:**
+
+- `APP_TOKEN`: Authentication token for the API (required if not provided via `--token`)
+- `API_URL`: API base URL (defaults to `https://smart.mcpshark.sh`, set to `http://localhost:3000` for local dev)
+
 ## Output Formats
 
 ### Table Format (Default)
