@@ -9,8 +9,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { consola } from "consola";
-import { handleAgentRadarAnalyzeCommand } from "./lib/commands/agentradar-analyze.js";
-import { handleAgentRadarScanCommand } from "./lib/commands/agentradar-scan.js";
+import { handleSmartAgentAnalyzeCommand } from "./lib/commands/smart-agent-analyze.js";
+import { handleSmartAgentScanCommand } from "./lib/commands/smart-agent-scan.js";
 import { handleCheckCommand } from "./lib/commands/check.js";
 import { handleScanCommand } from "./lib/commands/scan.js";
 
@@ -68,13 +68,13 @@ program
     await handleCheckCommand({ ...options, getToken });
   });
 
-// AgentRadar commands
-const agentradarCommand = new Command("agentradar").description(
-  "AgentRadar: Scan agents and detect privilege escalation paths"
+// Smart Agent commands
+const smartAgentCommand = new Command("smart-agent").description(
+  "Smart Agent: Scan agents and detect privilege escalation paths"
 );
 
-// AgentRadar scan subcommand
-agentradarCommand
+// Smart Agent scan subcommand
+smartAgentCommand
   .command("scan")
   .description("Scan agent card or MCP server data and submit to API")
   .requiredOption(
@@ -88,11 +88,11 @@ agentradarCommand
   .option("--fail-on-medium", "Exit with error code if risk level is medium")
   .option("--fail-on-low", "Exit with error code if risk level is low")
   .action(async (options) => {
-    await handleAgentRadarScanCommand({ ...options, getToken });
+    await handleSmartAgentScanCommand({ ...options, getToken });
   });
 
-// AgentRadar analyze subcommand
-agentradarCommand
+// Smart Agent analyze subcommand
+smartAgentCommand
   .command("analyze")
   .description("Perform local analysis without API submission")
   .requiredOption("-i, --input <path>", "Path to agent card JSON or MCP server data JSON")
@@ -100,10 +100,10 @@ agentradarCommand
   .option("-f, --format <format>", "Output format: sarif or json (default: json)", "json")
   .option("--verbose", "Enable verbose output")
   .action(async (options) => {
-    await handleAgentRadarAnalyzeCommand(options);
+    await handleSmartAgentAnalyzeCommand(options);
   });
 
-program.addCommand(agentradarCommand);
+program.addCommand(smartAgentCommand);
 
 // Parse arguments
 program.parse();

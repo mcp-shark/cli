@@ -177,23 +177,23 @@ mcp-shark-cli check --scan-id=scan123
 - `--fail-on-medium`: Exit with error code if risk level is medium (default: disabled)
 - `--fail-on-low`: Exit with error code if risk level is low (default: disabled)
 
-### AgentRadar Scan Command
+### Smart Agent Scan Command
 
-Scan agent cards or MCP server data using AgentRadar analysis. This command detects privilege escalation paths and agent-to-agent vulnerabilities.
+Scan agent cards or MCP server data using Smart Agent analysis. This command detects privilege escalation paths and agent-to-agent vulnerabilities.
 
 ```bash
 # Scan from local file
-mcp-shark-cli agentradar scan -i agent-card.json --token=sk_your_token_here
+mcp-shark-cli smart-agent scan -i agent-card.json --token=sk_your_token_here
 
 # Scan from URL (downloads agent card automatically)
-mcp-shark-cli agentradar scan -i https://example.com/agent-card.json --token=sk_your_token_here
+mcp-shark-cli smart-agent scan -i https://example.com/agent-card.json --token=sk_your_token_here
 
 # JSON output
-mcp-shark-cli agentradar scan -i agent-card.json --token=sk_your_token_here --json
+mcp-shark-cli smart-agent scan -i agent-card.json --token=sk_your_token_here --json
 
 # Using environment variable for token
 export APP_TOKEN=sk_your_token_here
-mcp-shark-cli agentradar scan -i agent-card.json
+mcp-shark-cli smart-agent scan -i agent-card.json
 ```
 
 **Options:**

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test AgentRadar scan with URL input
+# Test Smart Agent scan with URL input
 # Downloads agent card from a URL and scans it
 
 API_URL="${API_URL:-http://localhost:3000}"
@@ -20,7 +20,7 @@ AGENT_CARD_URL="${AGENT_CARD_URL:-https://raw.githubusercontent.com/example/agen
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLI_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-echo "Testing AgentRadar scan with URL input..."
+echo "Testing Smart Agent scan with URL input..."
 echo "API URL: $API_URL"
 echo "Agent Card URL: $AGENT_CARD_URL"
 echo "CLI Directory: $CLI_DIR"
@@ -34,11 +34,11 @@ cd "$CLI_DIR" || exit 1
 # Run the scan
 export API_URL
 if command -v jq &> /dev/null; then
-  ./cli agentradar scan -i "$AGENT_CARD_URL" --token="$TOKEN" --json | jq '.'
+  ./cli smart-agent scan -i "$AGENT_CARD_URL" --token="$TOKEN" --json | jq '.'
 else
-  ./cli agentradar scan -i "$AGENT_CARD_URL" --token="$TOKEN" --json
+  ./cli smart-agent scan -i "$AGENT_CARD_URL" --token="$TOKEN" --json
 fi
 
 echo ""
-echo "Expected: AgentRadar analysis of agent card downloaded from URL"
+echo "Expected: Smart Agent analysis of agent card downloaded from URL"
 

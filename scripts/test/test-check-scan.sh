@@ -20,7 +20,7 @@ if [ -z "$SCAN_ID" ]; then
   echo "To get a scan_id, run one of the test scripts first:"
   echo "  export APP_TOKEN='sk_your_token'"
   echo "  export API_URL='http://localhost:3000'"
-  echo "  ./scripts/test/test-agentradar-filesystem.sh"
+  echo "  ./scripts/test/test-smart-agent-filesystem.sh"
   echo ""
   echo "Then copy the scan_id from the output and run:"
   echo "  export SCAN_ID='your-scan-id'"
@@ -49,5 +49,5 @@ else
 fi
 
 echo ""
-echo "Expected: Scan result details including analysis, AgentRadar data (if available)"
+echo "Expected: Scan result details including analysis, Smart Agent data (if available)"
 

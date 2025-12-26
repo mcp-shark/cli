@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test AgentRadar scan with SQLite MCP Server
+# Test Smart Agent scan with SQLite MCP Server
 # Based on the official Anthropic SQLite MCP server
 
 API_URL="${API_URL:-http://localhost:3000}"
@@ -79,7 +79,7 @@ cat > "$TEMP_DIR/sqlite-agent.json" << 'EOF'
 }
 EOF
 
-echo "Testing AgentRadar scan with SQLite MCP Server..."
+echo "Testing Smart Agent scan with SQLite MCP Server..."
 echo "API URL: $API_URL"
 echo "CLI Directory: $CLI_DIR"
 echo ""
@@ -89,9 +89,9 @@ cd "$CLI_DIR" || exit 1
 # Run the scan
 export API_URL
 if command -v jq &> /dev/null; then
-  ./cli agentradar scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json | jq '.'
+  ./cli smart-agent scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json | jq '.'
 else
-  ./cli agentradar scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json
+  ./cli smart-agent scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json
 fi
 
 echo ""

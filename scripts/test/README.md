@@ -17,39 +17,39 @@ All scripts use the following defaults:
 
 ## Available Test Scripts
 
-### AgentRadar Scan Tests
+### Smart Agent Scan Tests
 
-1. **test-agentradar-filesystem.sh**
+1. **test-smart-agent-filesystem.sh**
    - Tests Filesystem MCP Server (Anthropic)
    - Tools: read_file, write_file, list_directory, create_directory, delete_file
    - Expected: Privilege escalation paths (read → write → delete)
 
-2. **test-agentradar-github.sh**
+2. **test-smart-agent-github.sh**
    - Tests GitHub MCP Server (Anthropic)
    - Tools: create_repository, get_file_contents, create_file, delete_file, list_repositories
    - Expected: Risk assessment for repository operations
 
-3. **test-agentradar-slack.sh**
+3. **test-smart-agent-slack.sh**
    - Tests Slack MCP Server (Anthropic)
    - Tools: send_message, list_channels, get_channel_history, upload_file
    - Expected: Data exfiltration risk assessment
 
-4. **test-agentradar-sqlite.sh**
+4. **test-smart-agent-sqlite.sh**
    - Tests SQLite MCP Server (Anthropic)
    - Tools: execute_query, list_tables, get_schema
    - Expected: SQL injection risk assessment
 
-5. **test-agentradar-a2a-agent-card.sh**
+5. **test-smart-agent-a2a-agent-card.sh**
    - Tests A2A Agent Card format
    - Includes tools and capabilities
    - Expected: Agent capability analysis, privilege escalation paths
 
-6. **test-agentradar-url.sh**
+6. **test-smart-agent-url.sh**
    - Tests downloading agent card from a URL
    - Demonstrates URL input support
-   - Expected: AgentRadar analysis of agent card downloaded from URL
+   - Expected: Smart Agent analysis of agent card downloaded from URL
 
-7. **test-agentradar-comprehensive.sh**
+7. **test-smart-agent-comprehensive.sh**
    - Tests comprehensive MCP server with tools, resources, and prompts
    - Includes sensitive resources and command execution
    - Expected: High risk assessment for command execution and sensitive data exposure
@@ -88,10 +88,10 @@ export APP_TOKEN="sk_your_actual_token_here"
 export API_URL="http://localhost:3000"
 
 # Run a specific test
-./scripts/test/test-agentradar-filesystem.sh
+./scripts/test/test-smart-agent-filesystem.sh
 ```
 
-### Run all AgentRadar tests only:
+### Run all Smart Agent tests only:
 
 ```bash
 export APP_TOKEN="sk_your_actual_token_here"
@@ -106,7 +106,7 @@ export API_URL="http://localhost:3000"
 cd /path/to/cli
 export APP_TOKEN="sk_your_token"
 export API_URL="http://localhost:3000"
-./scripts/test/test-agentradar-filesystem.sh
+./scripts/test/test-smart-agent-filesystem.sh
 ```
 
 ## Expected Output
@@ -123,7 +123,7 @@ Successful responses include:
 - `success: true`
 - `data`: Security analysis results
 - `scan_id`: UUID for retrieving detailed results
-- `agentradar`: AgentRadar analysis with:
+- `smart-agent`: Smart Agent analysis with:
   - `enabled`: boolean
   - `agents`: Array of discovered agents
   - `tools`: Array of discovered tools

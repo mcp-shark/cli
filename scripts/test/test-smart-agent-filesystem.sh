@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test AgentRadar scan with Filesystem MCP Server
+# Test Smart Agent scan with Filesystem MCP Server
 # Based on the official Anthropic filesystem MCP server
 
 API_URL="${API_URL:-http://localhost:3000}"
@@ -108,7 +108,7 @@ cat > "$TEMP_DIR/filesystem-agent.json" << 'EOF'
 }
 EOF
 
-echo "Testing AgentRadar scan with Filesystem MCP Server..."
+echo "Testing Smart Agent scan with Filesystem MCP Server..."
 echo "API URL: $API_URL"
 echo "CLI Directory: $CLI_DIR"
 echo ""
@@ -118,11 +118,11 @@ cd "$CLI_DIR" || exit 1
 # Run the scan
 export API_URL
 if command -v jq &> /dev/null; then
-  ./cli agentradar scan -i "$TEMP_DIR/filesystem-agent.json" --token="$TOKEN" --json | jq '.'
+  ./cli smart-agent scan -i "$TEMP_DIR/filesystem-agent.json" --token="$TOKEN" --json | jq '.'
 else
-  ./cli agentradar scan -i "$TEMP_DIR/filesystem-agent.json" --token="$TOKEN" --json
+  ./cli smart-agent scan -i "$TEMP_DIR/filesystem-agent.json" --token="$TOKEN" --json
 fi
 
 echo ""
-echo "Expected: AgentRadar analysis with filesystem tools, privilege escalation paths (read → write → delete)"
+echo "Expected: Smart Agent analysis with filesystem tools, privilege escalation paths (read → write → delete)"
 

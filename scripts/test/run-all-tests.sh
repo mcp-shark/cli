@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Run all AgentRadar test scripts
-# This script runs all test-agentradar-*.sh scripts in sequence
+# Run all Smart Agent test scripts
+# This script runs all test-smart-agent-*.sh scripts in sequence
 
 API_URL="${API_URL:-http://localhost:3000}"
 TOKEN="${APP_TOKEN:-}"
@@ -15,7 +15,7 @@ fi
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "Running all AgentRadar CLI tests..."
+echo "Running all Smart Agent CLI tests..."
 echo "API URL: $API_URL"
 echo "=========================================="
 echo ""
@@ -29,8 +29,8 @@ PASSED=0
 FAILED=0
 TOTAL=0
 
-# Run all agentradar test scripts
-for script in "$SCRIPT_DIR"/test-agentradar-*.sh; do
+# Run all smart-agent test scripts
+for script in "$SCRIPT_DIR"/test-smart-agent-*.sh; do
   if [ -f "$script" ]; then
     TOTAL=$((TOTAL + 1))
     echo "=========================================="

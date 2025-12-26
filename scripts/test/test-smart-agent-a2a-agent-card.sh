@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test AgentRadar scan with A2A Agent Card Format
+# Test Smart Agent scan with A2A Agent Card Format
 # Example of an A2A (Agent-to-Agent) agent card format
 
 API_URL="${API_URL:-http://localhost:3000}"
@@ -97,7 +97,7 @@ cat > "$TEMP_DIR/a2a-agent-card.json" << 'EOF'
 }
 EOF
 
-echo "Testing AgentRadar scan with A2A Agent Card..."
+echo "Testing Smart Agent scan with A2A Agent Card..."
 echo "API URL: $API_URL"
 echo "CLI Directory: $CLI_DIR"
 echo ""
@@ -107,11 +107,11 @@ cd "$CLI_DIR" || exit 1
 # Run the scan
 export API_URL
 if command -v jq &> /dev/null; then
-  ./cli agentradar scan -i "$TEMP_DIR/a2a-agent-card.json" --token="$TOKEN" --json | jq '.'
+  ./cli smart-agent scan -i "$TEMP_DIR/a2a-agent-card.json" --token="$TOKEN" --json | jq '.'
 else
-  ./cli agentradar scan -i "$TEMP_DIR/a2a-agent-card.json" --token="$TOKEN" --json
+  ./cli smart-agent scan -i "$TEMP_DIR/a2a-agent-card.json" --token="$TOKEN" --json
 fi
 
 echo ""
-echo "Expected: AgentRadar analysis of agent capabilities, privilege escalation path detection (read → process → upload)"
+echo "Expected: Smart Agent analysis of agent capabilities, privilege escalation path detection (read → process → upload)"
 

@@ -80,15 +80,15 @@ run_test() {
   fi
 }
 
-# Run AgentRadar tests
-echo "AgentRadar Scan Tests"
+# Run Smart Agent tests
+echo "Smart Agent Scan Tests"
 echo "=========================================="
-run_test "$SCRIPT_DIR/test-agentradar-filesystem.sh" "Filesystem MCP Server"
-run_test "$SCRIPT_DIR/test-agentradar-github.sh" "GitHub MCP Server"
-run_test "$SCRIPT_DIR/test-agentradar-slack.sh" "Slack MCP Server"
-run_test "$SCRIPT_DIR/test-agentradar-sqlite.sh" "SQLite MCP Server"
-run_test "$SCRIPT_DIR/test-agentradar-a2a-agent-card.sh" "A2A Agent Card"
-run_test "$SCRIPT_DIR/test-agentradar-comprehensive.sh" "Comprehensive MCP Server"
+run_test "$SCRIPT_DIR/test-smart-agent-filesystem.sh" "Filesystem MCP Server"
+run_test "$SCRIPT_DIR/test-smart-agent-github.sh" "GitHub MCP Server"
+run_test "$SCRIPT_DIR/test-smart-agent-slack.sh" "Slack MCP Server"
+run_test "$SCRIPT_DIR/test-smart-agent-sqlite.sh" "SQLite MCP Server"
+run_test "$SCRIPT_DIR/test-smart-agent-a2a-agent-card.sh" "A2A Agent Card"
+run_test "$SCRIPT_DIR/test-smart-agent-comprehensive.sh" "Comprehensive MCP Server"
 
 echo ""
 echo "Regular Scan Tests"

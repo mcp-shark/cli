@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test AgentRadar scan with Slack MCP Server
+# Test Smart Agent scan with Slack MCP Server
 # Based on the official Anthropic Slack MCP server
 
 API_URL="${API_URL:-http://localhost:3000}"
@@ -108,7 +108,7 @@ cat > "$TEMP_DIR/slack-agent.json" << 'EOF'
 }
 EOF
 
-echo "Testing AgentRadar scan with Slack MCP Server..."
+echo "Testing Smart Agent scan with Slack MCP Server..."
 echo "API URL: $API_URL"
 echo "CLI Directory: $CLI_DIR"
 echo ""
@@ -118,9 +118,9 @@ cd "$CLI_DIR" || exit 1
 # Run the scan
 export API_URL
 if command -v jq &> /dev/null; then
-  ./cli agentradar scan -i "$TEMP_DIR/slack-agent.json" --token="$TOKEN" --json | jq '.'
+  ./cli smart-agent scan -i "$TEMP_DIR/slack-agent.json" --token="$TOKEN" --json | jq '.'
 else
-  ./cli agentradar scan -i "$TEMP_DIR/slack-agent.json" --token="$TOKEN" --json
+  ./cli smart-agent scan -i "$TEMP_DIR/slack-agent.json" --token="$TOKEN" --json
 fi
 
 echo ""
