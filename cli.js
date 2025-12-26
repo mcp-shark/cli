@@ -9,10 +9,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { consola } from "consola";
-import { handleSmartAgentAnalyzeCommand } from "./lib/commands/smart-agent-analyze.js";
-import { handleSmartAgentScanCommand } from "./lib/commands/smart-agent-scan.js";
 import { handleCheckCommand } from "./lib/commands/check.js";
 import { handleScanCommand } from "./lib/commands/scan.js";
+import { handleSmartAgentAnalyzeCommand } from "./lib/commands/smart-agent-analyze.js";
+import { handleSmartAgentScanCommand } from "./lib/commands/smart-agent-scan.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
