@@ -1,10 +1,47 @@
 <div align="center">
   <img src="https://smart.mcpshark.sh/icon_512x512.png" alt="MCP Shark Logo" width="128" height="128">
   <h1>@mcp-shark/cli</h1>
-  <p>Security scanning tool for Model Context Protocol (MCP) servers</p>
+  <p><strong>Security scanning tool for Model Context Protocol (MCP) servers</strong></p>
+  <p>
+    <a href="https://www.npmjs.com/package/@mcp-shark/cli"><img src="https://img.shields.io/npm/v/@mcp-shark/cli.svg" alt="npm version"></a>
+    <a href="https://www.npmjs.com/package/@mcp-shark/cli"><img src="https://img.shields.io/npm/dm/@mcp-shark/cli.svg" alt="npm downloads"></a>
+    <a href="https://github.com/mcp-shark/cli/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@mcp-shark/cli.svg" alt="License"></a>
+    <a href="https://nodejs.org"><img src="https://img.shields.io/node/v/@mcp-shark/cli.svg" alt="Node.js version"></a>
+  </p>
 </div>
 
-A command-line interface tool that automatically discovers MCP server capabilities (tools, resources, and prompts) and performs AI-powered security analysis. Perfect for CI/CD pipelines and automated security audits.
+A command-line interface tool and library that automatically discovers MCP server capabilities (tools, resources, and prompts) and performs AI-powered security analysis. Perfect for CI/CD pipelines, automated security audits, and programmatic integration.
+
+## Features
+
+- **Automatic Discovery**: Automatically discovers tools, resources, and prompts from MCP servers
+- **Multiple Transports**: Supports stdio, HTTP/SSE, and WebSocket connections
+- **Flexible Output**: Human-readable tables or JSON for CI/CD pipelines
+- **Security Analysis**: AI-powered analysis of MCP server security risks
+- **Smart Agent Analysis**: Detect privilege escalation paths and agent-to-agent vulnerabilities
+- **CI/CD Ready**: Proper exit codes and JSON output for automation
+- **Verbose Logging**: Detailed debug output when needed
+- **Programmatic API**: Use as a library in your Node.js applications
+- **TypeScript Support**: Full TypeScript definitions included
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Getting Your API Token](#getting-your-api-token)
+- [Usage](#usage)
+  - [Scan Command](#scan-command)
+  - [Check Command](#check-command)
+  - [Smart Agent Commands](#smart-agent-commands)
+- [Programmatic API](#programmatic-api)
+- [Output Formats](#output-formats)
+- [CI/CD Integration](#cicd-integration)
+- [Configuration File Format](#configuration-file-format)
+- [Examples](#examples)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [Support](#support)
+- [License](#license)
 
 ## Quick Start
 
@@ -17,33 +54,6 @@ npm install -g @mcp-shark/cli
 # Run a scan
 mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here
 ```
-
-## Features
-
-- 🔍 **Automatic Discovery**: Automatically discovers tools, resources, and prompts from MCP servers
-- 🚀 **Multiple Transports**: Supports stdio, HTTP/SSE, and WebSocket connections
-- 📊 **Flexible Output**: Human-readable tables or JSON for CI/CD pipelines
-- 🔒 **Security Analysis**: AI-powered analysis of MCP server security risks
-- ⚡ **CI/CD Ready**: Proper exit codes and JSON output for automation
-- 📝 **Verbose Logging**: Detailed debug output when needed
-
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Features](#features)
-- [Installation](#installation)
-- [Getting Your API Token](#getting-your-api-token)
-- [Usage](#usage)
-  - [Scan Command](#scan-command)
-  - [Check Command](#check-command)
-- [Output Formats](#output-formats)
-- [CI/CD Integration](#cicd-integration)
-- [Configuration File Format](#configuration-file-format)
-- [Examples](#examples)
-- [Testing Phase Notice](#testing-phase-notice)
-- [Contributing](#contributing)
-- [Support](#support)
-- [License](#license)
 
 ## Installation
 
@@ -103,6 +113,10 @@ npx -y @mcp-shark/cli scan -c config.json --token=your_token
 
 **Important**: Save your token securely - it won't be shown again after creation!
 
+You can provide the token via:
+- `--token` command-line option
+- `APP_TOKEN` environment variable (recommended for CI/CD)
+
 ## Usage
 
 ### Scan Command
@@ -145,6 +159,7 @@ mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --fail-on-mediu
 **Environment Variables:**
 
 - `APP_TOKEN`: Authentication token for the API (required if not provided via `--token`)
+- `API_URL`: API base URL (defaults to `https://smart.mcpshark.sh`, set to `http://localhost:3000` for local dev)
 
 The CLI connects to `https://smart.mcpshark.sh` automatically.
 
@@ -177,23 +192,25 @@ mcp-shark-cli check --scan-id=scan123
 - `--fail-on-medium`: Exit with error code if risk level is medium (default: disabled)
 - `--fail-on-low`: Exit with error code if risk level is low (default: disabled)
 
-### Smart Agent Scan Command
+### Smart Agent Commands
+
+#### Smart Agent Scan
 
 Scan agent cards or MCP server data using Smart Agent analysis. This command detects privilege escalation paths and agent-to-agent vulnerabilities.
 
 ```bash
 # Scan from local file
-mcp-shark-cli smart-agent scan -i agent-card.json --token=sk_your_token_here
+mcp-shark-cli agent scan -i agent-card.json --token=sk_your_token_here
 
 # Scan from URL (downloads agent card automatically)
-mcp-shark-cli smart-agent scan -i https://example.com/agent-card.json --token=sk_your_token_here
+mcp-shark-cli agent scan -i https://example.com/agent-card.json --token=sk_your_token_here
 
 # JSON output
-mcp-shark-cli smart-agent scan -i agent-card.json --token=sk_your_token_here --json
+mcp-shark-cli agent scan -i agent-card.json --token=sk_your_token_here --json
 
 # Using environment variable for token
 export APP_TOKEN=sk_your_token_here
-mcp-shark-cli smart-agent scan -i agent-card.json
+mcp-shark-cli agent scan -i agent-card.json
 ```
 
 **Options:**
@@ -212,10 +229,100 @@ The command accepts:
 - **Local file path**: Path to a JSON file containing agent card or MCP server data
 - **URL**: HTTP/HTTPS URL to download agent card from (e.g., `https://example.com/agent.json`)
 
-**Environment Variables:**
+#### Smart Agent Analyze
 
-- `APP_TOKEN`: Authentication token for the API (required if not provided via `--token`)
-- `API_URL`: API base URL (defaults to `https://smart.mcpshark.sh`, set to `http://localhost:3000` for local dev)
+Perform local analysis without API submission (coming soon):
+
+```bash
+# Local analysis (not yet implemented)
+mcp-shark-cli agent analyze -i agent-card.json -o results.json -f json
+```
+
+**Options:**
+
+- `-i, --input <path>` (required): Path to agent card JSON or MCP server data JSON
+- `-o, --output <path>`: Output file path (default: stdout)
+- `-f, --format <format>`: Output format: sarif or json (default: json)
+- `--verbose`: Enable verbose output
+
+**Note**: This command is currently under development. Use `agent scan` for now.
+
+## Programmatic API
+
+The package can also be used as a library in your Node.js applications:
+
+```javascript
+import {
+  createApiClient,
+  createScan,
+  getScan,
+  runAllServers,
+  scheduleScan,
+  checkScan,
+  ApiError,
+  RunError,
+} from "@mcp-shark/cli";
+import { consola } from "consola";
+
+// Create API client
+const apiClient = createApiClient("sk_your_token_here");
+
+// Run all servers from config file
+const results = await runAllServers(consola, "./mcp-config.json");
+
+if (results instanceof RunError) {
+  console.error("Failed to run servers:", results.message);
+  process.exit(1);
+}
+
+// Submit scan
+const scanData = await scheduleScan(apiClient, results);
+
+if (scanData instanceof ApiError) {
+  console.error("API error:", scanData.message);
+  process.exit(1);
+}
+
+console.log("Scan ID:", scanData.id);
+
+// Check scan status
+const scanResult = await checkScan(apiClient, scanData.id);
+
+if (scanResult instanceof ApiError) {
+  console.error("Failed to get scan:", scanResult.message);
+  process.exit(1);
+}
+
+console.log("Risk level:", scanResult.overall_risk_level);
+```
+
+### TypeScript Support
+
+Full TypeScript definitions are included:
+
+```typescript
+import type {
+  ServerConfig,
+  MCPConfigFile,
+  ServerRunResult,
+  ScanData,
+  Logger,
+} from "@mcp-shark/cli";
+
+const config: MCPConfigFile = {
+  mcpServers: {
+    "my-server": {
+      type: "stdio",
+      command: "node",
+      args: ["server.js"],
+    },
+  },
+};
+```
+
+### API Reference
+
+See [index.d.ts](./index.d.ts) for complete TypeScript definitions and API documentation.
 
 ## Output Formats
 
@@ -311,10 +418,10 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
@@ -334,6 +441,22 @@ jobs:
             echo "High risk detected: $RISK_LEVEL"
             exit 1
           fi
+```
+
+### GitLab CI Example
+
+```yaml
+security-scan:
+  image: node:20
+  before_script:
+    - npm install -g @mcp-shark/cli
+  script:
+    - mcp-shark-cli scan -c mcp-config.json --json > scan-result.json
+  variables:
+    APP_TOKEN: $SMART_SCAN_TOKEN
+  only:
+    - merge_requests
+    - main
 ```
 
 ### Using with jq
@@ -420,181 +543,6 @@ The CLI expects an MCP configuration file in JSON format. The file can contain `
 - If a server name exists in both, `mcpServers` takes precedence
 - MCP servers without a `type` property default to `stdio`
 
-## API Integration
-
-The CLI integrates with the Smart Scan API at `https://smart.mcpshark.sh`.
-
-### API Endpoints
-
-- `POST /api/scans`: Create a new scan (perform security scan on MCP servers)
-- `GET /api/scans/{id}`: Retrieve scan status and details by scan ID
-- `POST /api/smart-agent/scan`: Perform Smart Agent scan (agent cards, A2A format, MCP server data)
-
-### Authentication
-
-All API requests require authentication using a Bearer token:
-
-- Provide the token via `--token` command-line option, or
-- Set the `APP_TOKEN` environment variable
-
-### Rate Limits
-
-- Default rate limit: **3 scans per day per token**
-- Rate limit is configurable per token in the database
-- Rate limit resets at midnight UTC
-- Rate limit information is included in successful responses
-
-### Response Format
-
-#### Success Response (200)
-
-```json
-{
-  "success": true,
-  "data": {
-    "overall_risk_level": "high",
-    "overall_reason": "Multiple high-risk tools detected...",
-    "tool_findings": [...],
-    "resource_findings": [...],
-    "prompt_findings": [...],
-    "notable_patterns": [...],
-    "recommendations": [...]
-  },
-  "scan_id": "uuid-here",
-  "rate_limit": {
-    "limit": 3,
-    "remaining": 2
-  }
-}
-```
-
-#### Error Responses
-
-**Rate Limit Exceeded (429):**
-
-```json
-{
-  "error": "Rate limit exceeded",
-  "message": "You have reached your daily limit of 3 scans. Please try again tomorrow.",
-  "limit": 3,
-  "remaining": 0
-}
-```
-
-**Invalid Token (401):**
-
-```json
-{
-  "error": "Invalid or expired token"
-}
-```
-
-**Bad Request (400):**
-
-```json
-{
-  "error": "Invalid request body. Expected JSON with MCP server data."
-}
-```
-
-### Smart Agent Scan Endpoint
-
-The `POST /api/smart-agent/scan` endpoint is used by the `smart-agent scan` command to perform comprehensive agent-to-agent security analysis.
-
-#### Request Format
-
-The endpoint accepts two input formats:
-
-**A2A Agent Card Format:**
-```json
-{
-  "id": "agent-123",
-  "agent_id": "agent-123",
-  "tools": [
-    {
-      "name": "read_file",
-      "description": "Reads a file from the filesystem"
-    }
-  ],
-  "capabilities": [
-    {
-      "name": "file_access",
-      "description": "Can access files"
-    }
-  ]
-}
-```
-
-**MCP Server Data Format:**
-```json
-{
-  "server": {
-    "name": "example-server",
-    "description": "An example MCP server"
-  },
-  "tools": [
-    {
-      "name": "delete_file",
-      "description": "Deletes a file",
-      "input_schema": {
-        "type": "object",
-        "properties": {
-          "path": { "type": "string" }
-        }
-      }
-    }
-  ],
-  "resources": [],
-  "prompts": []
-}
-```
-
-#### Success Response (200)
-
-```json
-{
-  "success": true,
-  "data": {
-    "overall_risk_level": "high",
-    "overall_reason": "Multiple high-risk tools detected...",
-    "tool_findings": [...],
-    "resource_findings": [...],
-    "prompt_findings": [...]
-  },
-  "scan_id": "uuid-here",
-  "smart_agent": {
-    "enabled": true,
-    "llmEnabled": true,
-    "agents": [...],
-    "tools": [...],
-    "capabilities": [...],
-    "vulnerabilities": [...],
-    "paths": [...],
-    "summary": {
-      "totalAgents": 1,
-      "totalTools": 5,
-      "totalVulnerabilities": 2,
-      "totalPaths": 1
-    }
-  },
-  "rate_limit": {
-    "limit": 3,
-    "remaining": 2
-  }
-}
-```
-
-#### Features
-
-The Smart Agent endpoint provides:
-- **Hybrid analysis**: Regex/keyword + LLM-based pattern detection
-- **Tool equivalence detection**: LLM-based analysis to identify equivalent tools
-- **Semantic vulnerability detection**: Beyond static regex patterns
-- **Chained vulnerability detection**: Detects attack paths across multiple tools
-- **Privilege escalation path analysis**: Identifies potential privilege escalation vectors
-
-**Note**: Rate limits are shared across all endpoints. The same token's `daily_limit` applies to both `/api/scans` and `/api/smart-agent/scan` endpoints.
-
 ## Examples
 
 ### Complete Workflow Example
@@ -674,15 +622,93 @@ mcp-shark-cli check --scan-id=scan-abc123
 }
 ```
 
-## Testing Phase Notice
+### Example: Programmatic Usage
 
-⚠️ **This tool is currently in testing phase**. During this period:
+```javascript
+import { createApiClient, runAllServers, scheduleScan } from "@mcp-shark/cli";
+import { consola } from "consola";
 
-- Rate limit is set to **3 scans per day** per account
-- Features may change
-- We appreciate your patience and understanding
+async function performScan() {
+  const apiClient = createApiClient(process.env.APP_TOKEN);
+  const results = await runAllServers(consola, "./mcp-config.json");
 
-The banner will be displayed when running scan commands to remind users of this limitation.
+  if (results instanceof RunError) {
+    console.error("Failed:", results.message);
+    return;
+  }
+
+  const scan = await scheduleScan(apiClient, results);
+  console.log("Scan ID:", scan.id);
+}
+```
+
+## Troubleshooting
+
+### Command not found
+
+If you installed globally, make sure npm's global bin directory is in your PATH:
+
+```bash
+# Check npm global prefix
+npm config get prefix
+
+# Add to PATH (example for ~/.npm-global)
+export PATH="$PATH:$(npm config get prefix)/bin"
+```
+
+Add this to your `~/.bashrc` or `~/.zshrc` to make it permanent.
+
+### Permission denied
+
+If you get permission errors with global installation:
+
+1. **Use a node version manager** (recommended):
+   ```bash
+   # With nvm
+   nvm install node
+   nvm use node
+   npm install -g @mcp-shark/cli
+   ```
+
+2. **Change npm's default directory**:
+   ```bash
+   mkdir ~/.npm-global
+   npm config set prefix '~/.npm-global'
+   export PATH=~/.npm-global/bin:$PATH
+   npm install -g @mcp-shark/cli
+   ```
+
+3. **Use local installation** instead:
+   ```bash
+   npm install @mcp-shark/cli
+   npx @mcp-shark/cli scan -c config.json --token=your_token
+   ```
+
+### Invalid token error
+
+- Verify your token is correct and starts with `sk_`
+- Check if the token has expired (create a new one at https://smart.mcpshark.sh/tokens)
+- Ensure you're using the correct environment variable name (`APP_TOKEN`)
+
+### Rate limit exceeded
+
+- Default rate limit is 3 scans per day per token
+- Rate limit resets at midnight UTC
+- Check your rate limit status in the scan response
+- Contact support if you need a higher rate limit
+
+### Connection errors
+
+- Verify your internet connection
+- Check if `https://smart.mcpshark.sh` is accessible
+- For local development, set `API_URL=http://localhost:3000`
+
+### Server connection failures
+
+- Verify your MCP configuration file is valid JSON
+- Check that server commands are executable
+- For HTTP/WebSocket servers, verify URLs are correct
+- Use `--verbose` flag for detailed error messages
 
 ## Contributing
 
@@ -692,13 +718,24 @@ We welcome contributions! Please see our [Contributing Guide](https://github.com
 - **Request features**: [Open an issue](https://github.com/mcp-shark/cli/issues)
 - **Submit PRs**: [Fork and contribute](https://github.com/mcp-shark/cli)
 
-## License
-
-ISC
-
 ## Support
 
 - **Web Application**: [https://smart.mcpshark.sh](https://smart.mcpshark.sh)
 - **Documentation**: [Full Documentation](https://github.com/mcp-shark/cli#readme)
 - **Issues**: [Report bugs or request features](https://github.com/mcp-shark/cli/issues)
 - **Repository**: [GitHub](https://github.com/mcp-shark/cli)
+
+## License
+
+ISC
+
+---
+
+<div align="center">
+  <p>Made with ❤️ by the MCP Shark team</p>
+  <p>
+    <a href="https://smart.mcpshark.sh">Website</a> •
+    <a href="https://github.com/mcp-shark/cli">GitHub</a> •
+    <a href="https://www.npmjs.com/package/@mcp-shark/cli">npm</a>
+  </p>
+</div>

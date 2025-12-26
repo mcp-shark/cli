@@ -69,7 +69,7 @@ program
   });
 
 // Smart Agent commands
-const smartAgentCommand = new Command("smart-agent").description(
+const smartAgentCommand = new Command("agent").description(
   "Smart Agent: Scan agents and detect privilege escalation paths"
 );
 
