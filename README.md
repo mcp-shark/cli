@@ -426,8 +426,9 @@ The CLI integrates with the Smart Scan API at `https://smart.mcpshark.sh`.
 
 ### API Endpoints
 
-- `POST /api/scans`: Create a new scan (perform security scan)
+- `POST /api/scans`: Create a new scan (perform security scan on MCP servers)
 - `GET /api/scans/{id}`: Retrieve scan status and details by scan ID
+- `POST /api/smart-agent/scan`: Perform Smart Agent scan (agent cards, A2A format, MCP server data)
 
 ### Authentication
 
@@ -495,6 +496,104 @@ All API requests require authentication using a Bearer token:
   "error": "Invalid request body. Expected JSON with MCP server data."
 }
 ```
+
+### Smart Agent Scan Endpoint
+
+The `POST /api/smart-agent/scan` endpoint is used by the `smart-agent scan` command to perform comprehensive agent-to-agent security analysis.
+
+#### Request Format
+
+The endpoint accepts two input formats:
+
+**A2A Agent Card Format:**
+```json
+{
+  "id": "agent-123",
+  "agent_id": "agent-123",
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "Reads a file from the filesystem"
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "file_access",
+      "description": "Can access files"
+    }
+  ]
+}
+```
+
+**MCP Server Data Format:**
+```json
+{
+  "server": {
+    "name": "example-server",
+    "description": "An example MCP server"
+  },
+  "tools": [
+    {
+      "name": "delete_file",
+      "description": "Deletes a file",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" }
+        }
+      }
+    }
+  ],
+  "resources": [],
+  "prompts": []
+}
+```
+
+#### Success Response (200)
+
+```json
+{
+  "success": true,
+  "data": {
+    "overall_risk_level": "high",
+    "overall_reason": "Multiple high-risk tools detected...",
+    "tool_findings": [...],
+    "resource_findings": [...],
+    "prompt_findings": [...]
+  },
+  "scan_id": "uuid-here",
+  "smart_agent": {
+    "enabled": true,
+    "llmEnabled": true,
+    "agents": [...],
+    "tools": [...],
+    "capabilities": [...],
+    "vulnerabilities": [...],
+    "paths": [...],
+    "summary": {
+      "totalAgents": 1,
+      "totalTools": 5,
+      "totalVulnerabilities": 2,
+      "totalPaths": 1
+    }
+  },
+  "rate_limit": {
+    "limit": 3,
+    "remaining": 2
+  }
+}
+```
+
+#### Features
+
+The Smart Agent endpoint provides:
+- **Hybrid analysis**: Regex/keyword + LLM-based pattern detection
+- **Tool equivalence detection**: LLM-based analysis to identify equivalent tools
+- **Semantic vulnerability detection**: Beyond static regex patterns
+- **Chained vulnerability detection**: Detects attack paths across multiple tools
+- **Privilege escalation path analysis**: Identifies potential privilege escalation vectors
+
+**Note**: Rate limits are shared across all endpoints. The same token's `daily_limit` applies to both `/api/scans` and `/api/smart-agent/scan` endpoints.
 
 ## Examples
 
