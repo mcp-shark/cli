@@ -89,9 +89,9 @@ cd "$CLI_DIR" || exit 1
 # Run the scan
 export API_URL
 if command -v jq &> /dev/null; then
-  ./cli smart-agent scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json | jq '.'
+  ./cli agent scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json | jq '.'
 else
-  ./cli smart-agent scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json
+  ./cli agent scan -i "$TEMP_DIR/sqlite-agent.json" --token="$TOKEN" --json
 fi
 
 echo ""

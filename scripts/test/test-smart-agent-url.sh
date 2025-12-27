@@ -14,7 +14,7 @@ fi
 
 # Example URL - you can replace this with a real agent card URL
 # For testing, we'll use a placeholder that should be replaced with a real URL
-AGENT_CARD_URL="${AGENT_CARD_URL:-https://raw.githubusercontent.com/example/agent-card/main/agent.json}"
+AGENT_CARD_URL="${AGENT_CARD_URL:-}"
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -34,7 +34,7 @@ cd "$CLI_DIR" || exit 1
 # Run the scan
 export API_URL
 if command -v jq &> /dev/null; then
-  ./cli smart-agent scan -i "$AGENT_CARD_URL" --token="$TOKEN" --json | jq '.'
+  ./cli agent scan -i "$AGENT_CARD_URL" --token="$TOKEN" --json | jq '.'
 else
   ./cli smart-agent scan -i "$AGENT_CARD_URL" --token="$TOKEN" --json
 fi
