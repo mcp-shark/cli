@@ -10,19 +10,8 @@
   </p>
 </div>
 
-A command-line interface tool and library that automatically discovers MCP server capabilities (tools, resources, and prompts) and performs AI-powered security analysis. Perfect for CI/CD pipelines, automated security audits, and programmatic integration.
+The official command-line interface for [Smart.mcpshark.sh](https://smart.mcpshark.sh) - a security scanning service for Model Context Protocol (MCP) servers. This CLI automatically discovers MCP server capabilities (tools, resources, and prompts) and submits them to Smart Scan for AI-powered security analysis. Perfect for CI/CD pipelines, automated security audits, and programmatic integration.
 
-## Features
-
-- **Automatic Discovery**: Automatically discovers tools, resources, and prompts from MCP servers
-- **Multiple Transports**: Supports stdio, HTTP/SSE, and WebSocket connections
-- **Flexible Output**: Human-readable tables or JSON for CI/CD pipelines
-- **Security Analysis**: AI-powered analysis of MCP server security risks
-- **Smart Agent Analysis**: Detect privilege escalation paths and agent-to-agent vulnerabilities
-- **CI/CD Ready**: Proper exit codes and JSON output for automation
-- **Verbose Logging**: Detailed debug output when needed
-- **Programmatic API**: Use as a library in your Node.js applications
-- **TypeScript Support**: Full TypeScript definitions included
 
 ## Table of Contents
 
@@ -203,7 +192,7 @@ Scan agent cards or MCP server data using Smart Agent analysis. This command det
 mcp-shark-cli agent scan -i agent-card.json --token=sk_your_token_here
 
 # Scan from URL (downloads agent card automatically)
-mcp-shark-cli agent scan -i https://example.com/agent-card.json --token=sk_your_token_here
+mcp-shark-cli agent scan -i https://example.com/.well-known/agent.json --token=sk_your_token_here
 
 # JSON output
 mcp-shark-cli agent scan -i agent-card.json --token=sk_your_token_here --json
@@ -341,6 +330,9 @@ The default output shows scan results in a formatted table:
 │ Tool Findings  │ 5                                         │
 │ Resource Findings │ 2                                     │
 │ Prompt Findings │ 1                                        │
+│ OWASP Findings │ 4                                         │
+│ OWASP Categories │ LLM01 (Prompt Injection) - 3           │
+│                  │ LLM02 (Insecure Output Handling) - 1    │
 ─────────────────────────────────────────────────────────────
 ```
 
@@ -374,6 +366,23 @@ Output:
     "tool_findings": [...],
     "resource_findings": [...],
     "prompt_findings": [...]
+  },
+  "owasp_summary": {
+    "categories": [
+      {
+        "code": "LLM01",
+        "name": "Prompt Injection",
+        "link": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "count": 3
+      },
+      {
+        "code": "LLM02",
+        "name": "Insecure Output Handling",
+        "link": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "count": 1
+      }
+    ],
+    "total": 4
   }
 }
 ```
