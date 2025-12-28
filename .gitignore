@@ -147,3 +147,6 @@ test-api-token.txt
 
 # CLI binary (duplicate of cli.js)
 cli
+test.sh
+mcp.json
+agent.sh
