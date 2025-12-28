@@ -104,7 +104,7 @@ npx -y @mcp-shark/cli scan -c config.json --token=your_token
 
 You can provide the token via:
 - `--token` command-line option
-- `APP_TOKEN` environment variable (recommended for CI/CD)
+- `SMART_SCAN_API_TOKEN` environment variable (recommended for CI/CD)
 
 ## Usage
 
@@ -122,7 +122,7 @@ Perform a security scan on MCP servers. This command will:
 mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here
 
 # Using environment variable for token
-export APP_TOKEN=sk_your_token_here
+export SMART_SCAN_API_TOKEN=sk_your_token_here
 mcp-shark-cli scan -c mcp-config.json
 
 # With verbose output
@@ -138,7 +138,7 @@ mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --fail-on-mediu
 **Options:**
 
 - `-c, --config <path>` (required): Path to MCP configuration file
-- `--token <token>`: Authentication token for API (or set `APP_TOKEN` environment variable)
+- `--token <token>`: Authentication token for API (or set `SMART_SCAN_API_TOKEN` environment variable)
 - `--verbose`: Enable verbose output
 - `--json`: Output results as JSON (for piping to jq or other tools)
 - `--fail-on-high`: Exit with error code if risk level is high or critical (default: enabled)
@@ -147,8 +147,8 @@ mcp-shark-cli scan -c mcp-config.json --token=sk_your_token_here --fail-on-mediu
 
 **Environment Variables:**
 
-- `APP_TOKEN`: Authentication token for the API (required if not provided via `--token`)
-- `API_URL`: API base URL (defaults to `https://smart.mcpshark.sh`, set to `http://localhost:3000` for local dev)
+- `SMART_SCAN_API_TOKEN`: Authentication token for the API (required if not provided via `--token`)
+- `SMART_SCAN_API_URL`: API base URL (defaults to `https://smart.mcpshark.sh`, set to `http://localhost:3000` for local dev)
 
 The CLI connects to `https://smart.mcpshark.sh` automatically.
 
@@ -167,14 +167,14 @@ mcp-shark-cli check --scan-id=scan123 --token=sk_your_token_here --verbose
 mcp-shark-cli check --scan-id=scan123 --token=sk_your_token_here --json
 
 # Using environment variable for token
-export APP_TOKEN=sk_your_token_here
+export SMART_SCAN_API_TOKEN=sk_your_token_here
 mcp-shark-cli check --scan-id=scan123
 ```
 
 **Options:**
 
 - `-j, --scan-id <scanId>` (required): Scan ID returned from the scan command
-- `--token <token>`: Authentication token for API (or set `APP_TOKEN` environment variable)
+- `--token <token>`: Authentication token for API (or set `SMART_SCAN_API_TOKEN` environment variable)
 - `--verbose`: Enable verbose output
 - `--json`: Output results as JSON (for piping to jq or other tools)
 - `--fail-on-high`: Exit with error code if risk level is high or critical (default: enabled)
@@ -185,7 +185,7 @@ mcp-shark-cli check --scan-id=scan123
 
 #### Smart Agent Scan
 
-Scan agent cards or MCP server data using Smart Agent analysis. This command detects privilege escalation paths and agent-to-agent vulnerabilities.
+Scan agent cards or MCP server data using Smart Agent analysis. This command detects privilege escalation paths and agent-to-agent vulnerabilities. The output format matches the standard scan command, providing consistent table and JSON formatting.
 
 ```bash
 # Scan from local file
@@ -194,20 +194,20 @@ mcp-shark-cli agent scan -i agent-card.json --token=sk_your_token_here
 # Scan from URL (downloads agent card automatically)
 mcp-shark-cli agent scan -i https://example.com/.well-known/agent.json --token=sk_your_token_here
 
-# JSON output
+# JSON output (same format as normal scan)
 mcp-shark-cli agent scan -i agent-card.json --token=sk_your_token_here --json
 
 # Using environment variable for token
-export APP_TOKEN=sk_your_token_here
+export SMART_SCAN_API_TOKEN=sk_your_token_here
 mcp-shark-cli agent scan -i agent-card.json
 ```
 
 **Options:**
 
 - `-i, --input <path>` (required): Path to agent card JSON file or URL to download agent card from
-- `--token <token>`: Authentication token for API (or set `APP_TOKEN` environment variable)
+- `--token <token>`: Authentication token for API (or set `SMART_SCAN_API_TOKEN` environment variable)
 - `--verbose`: Enable verbose output
-- `--json`: Output results as JSON (for piping to jq or other tools)
+- `--json`: Output results as JSON (same format as normal scan, for piping to jq or other tools)
 - `--fail-on-high`: Exit with error code if risk level is high or critical (default: enabled)
 - `--fail-on-medium`: Exit with error code if risk level is medium (default: disabled)
 - `--fail-on-low`: Exit with error code if risk level is low (default: disabled)
@@ -439,7 +439,7 @@ jobs:
 
       - name: Run security scan
         env:
-          APP_TOKEN: ${{ secrets.SMART_SCAN_TOKEN }}
+          SMART_SCAN_API_TOKEN: ${{ secrets.SMART_SCAN_TOKEN }}
         run: |
           mcp-shark-cli scan -c mcp-config.json --json > scan-result.json
 
@@ -462,7 +462,7 @@ security-scan:
   script:
     - mcp-shark-cli scan -c mcp-config.json --json > scan-result.json
   variables:
-    APP_TOKEN: $SMART_SCAN_TOKEN
+    SMART_SCAN_API_TOKEN: $SMART_SCAN_TOKEN
   only:
     - merge_requests
     - main
@@ -579,7 +579,7 @@ The CLI expects an MCP configuration file in JSON format. The file can contain `
 **Step 2: Run a scan:**
 
 ```bash
-export APP_TOKEN=sk_your_token_here
+export SMART_SCAN_API_TOKEN=sk_your_token_here
 mcp-shark-cli scan -c mcps.json --verbose
 ```
 
@@ -638,7 +638,7 @@ import { createApiClient, runAllServers, scheduleScan } from "@mcp-shark/cli";
 import { consola } from "consola";
 
 async function performScan() {
-  const apiClient = createApiClient(process.env.APP_TOKEN);
+  const apiClient = createApiClient(process.env.SMART_SCAN_API_TOKEN);
   const results = await runAllServers(consola, "./mcp-config.json");
 
   if (results instanceof RunError) {
@@ -697,7 +697,7 @@ If you get permission errors with global installation:
 
 - Verify your token is correct and starts with `sk_`
 - Check if the token has expired (create a new one at https://smart.mcpshark.sh/tokens)
-- Ensure you're using the correct environment variable name (`APP_TOKEN`)
+- Ensure you're using the correct environment variable name (`SMART_SCAN_API_TOKEN`)
 
 ### Rate limit exceeded
 
@@ -710,7 +710,7 @@ If you get permission errors with global installation:
 
 - Verify your internet connection
 - Check if `https://smart.mcpshark.sh` is accessible
-- For local development, set `API_URL=http://localhost:3000`
+- For local development, set `SMART_SCAN_API_URL=http://localhost:3000`
 
 ### Server connection failures
 
