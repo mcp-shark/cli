@@ -1,6 +1,6 @@
 {
   "name": "@mcp-shark/cli",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CLI tool and library for security scanning with MCP servers",
   "main": "index.js",
   "types": "index.d.ts",
@@ -30,7 +30,9 @@
     "publish:dry-run": "npm publish --dry-run"
   },
   "lint-staged": {
-    "*": ["biome check --write"]
+    "*": [
+      "biome check --write"
+    ]
   },
   "keywords": [
     "mcp",
@@ -54,7 +56,14 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "files": ["cli.js", "index.js", "index.d.ts", "lib/", "package.json", "README.md"],
+  "files": [
+    "cli.js",
+    "index.js",
+    "index.d.ts",
+    "lib/",
+    "package.json",
+    "README.md"
+  ],
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^19.5.0",
