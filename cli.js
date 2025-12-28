@@ -28,7 +28,7 @@ program.name("cli").description("CLI tool for security scanning").version(pkg.ve
 
 // Helper function to get token from CLI option or environment variable
 function getToken(cliToken) {
-  const token = cliToken || process.env.APP_TOKEN;
+  const token = cliToken || process.env.SMART_SCAN_API_TOKEN;
   if (!token) {
     consola.error(
       "Token is required. Provide it via --token option or APP_TOKEN environment variable"
